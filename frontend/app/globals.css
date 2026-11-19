@@ -7,296 +7,515 @@
 */
 
 /* ---------- 1. Colours and sizes (change them here) ---------- */
+/* :root = the top of the page. Here we save colours and sizes in named boxes called variables (names start with --). Later, var(--name) means use the value saved under that name */
 :root {
+  /* --bg = light grey-blue colour behind the whole page (#f1f5f9 is a colour written in hex code) */
   --bg: #f1f5f9;          /* page background */
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --faint: #94a3b8;
-  --line: #e2e8f0;
-  --soft: #f8fafc;
+  --card: #ffffff;  /* white, background of the cards (boxes) */
+  --text: #0f172a;  /* almost black, colour of normal text */
+  --muted: #64748b;  /* medium grey, for less important text (hints, small notes) */
+  --faint: #94a3b8;  /* light grey, for very faint text and the offline dot */
+  --line: #e2e8f0;  /* very light grey, used for borders and divider lines */
+  --soft: #f8fafc;  /* very soft off-white, background of small boxes and table headers */
 
+  /* --primary = the main blue colour of the website */
   --primary: #2563eb;     /* buttons, links, active menu */
-  --primary-dark: #1d4ed8;
-  --primary-bg: #eff6ff;
+  --primary-dark: #1d4ed8;  /* darker blue, used when the mouse is over a blue button */
+  --primary-bg: #eff6ff;  /* very pale blue, used as a light blue background (focus glow, icons) */
 
+  /* --side = dark navy colour of the left sidebar menu */
   --side: #0f172a;        /* sidebar */
-  --side-text: #94a3b8;
-  --side-active: #1e293b;
+  --side-text: #94a3b8;  /* grey text colour of the sidebar links */
+  --side-active: #1e293b;  /* slightly lighter navy, background of the selected or hovered menu link */
 
-  --green: #16a34a;  --green-bg: #f0fdf4;
-  --amber: #ca8a04;  --amber-bg: #fefce8;
-  --orange: #ea580c; --orange-bg: #fff7ed;
-  --red: #dc2626;    --red-bg: #fef2f2;
-  --blue: #2563eb;   --blue-bg: #eff6ff;
-  --gray: #475569;   --gray-bg: #f1f5f9;
+  --green: #16a34a;  --green-bg: #f0fdf4;  /* green text + pale green background: good / repaired / safe */
+  --amber: #ca8a04;  --amber-bg: #fefce8;  /* amber (yellow) text + pale yellow background: medium / scheduled */
+  --orange: #ea580c; --orange-bg: #fff7ed;  /* orange text + pale orange background: high danger */
+  --red: #dc2626;    --red-bg: #fef2f2;  /* red text + pale red background: very dangerous / open / errors */
+  --blue: #2563eb;   --blue-bg: #eff6ff;  /* blue text + pale blue background: information */
+  --gray: #475569;   --gray-bg: #f1f5f9;  /* grey text + pale grey background: neutral / unknown */
 
-  --radius: 10px;
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
+  --radius: 10px;  /* how round the corners of cards are (px = pixels, dots on the screen) */
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05);  /* a very light shadow under cards; rgba = colour with transparency (last number 0.05 = almost see-through) */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;  /* the font (letter style): Inter if available, otherwise the computer's normal system font */
+}  /* end of the :root variables block */
 
+/* * = every element. box-sizing: border-box = width includes padding and border, so boxes do not grow bigger than we set */
 * { box-sizing: border-box; }
+/* html and body = the whole page: no outer gap (margin 0), page background colour, text colour, font, text size 15px, and smoother letters on Mac */
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; -webkit-font-smoothing: antialiased; }
+/* buttons and form boxes normally use their own font; inherit = copy the font and colour from the parent so they match the page */
 button, input, select, textarea { font: inherit; color: inherit; }
+/* pictures: display block = sit on their own line; max-width 100% = never wider than their box */
 img { display: block; max-width: 100%; }
+/* remove the default empty space (margin) around headings and paragraphs */
 h1, h2, h3, p { margin: 0; }
+/* links (a tags) are shown in the main blue colour */
 a { color: var(--primary); }
 
 /* ---------- 2. App layout: sidebar + main area ---------- */
+/* .shell = the whole app frame. grid = arrange boxes in rows and columns. Two columns: sidebar 248px wide, main area takes the rest (1fr = one share of free space; minmax(0, 1fr) stops it overflowing). min-height 100vh = at least the full screen height (vh = percent of screen height) */
 .shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
 
+/* .side = the dark sidebar menu on the left. Dark background, grey text, inner space (padding). position: sticky + top 0 = stays on screen while you scroll; height 100vh = full screen tall */
 .side { background: var(--side); color: var(--side-text); padding: 20px 14px; position: sticky; top: 0; height: 100vh;
-  display: flex; flex-direction: column; overflow-y: auto; }
+  display: flex; flex-direction: column; overflow-y: auto; }  /* (continued) flex column = put items one under another; overflow-y auto = show a scrollbar if the menu is too long */
+/* .side-brand = logo + project name at the top of the sidebar. flex = place items in a row; align-items center = line them up vertically in the middle; gap = space between them */
 .side-brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 22px; }
+/* .side-logo = small blue square holding the logo icon, 34px, rounded corners; display grid + place-items center = put the icon exactly in the middle; flex none = never shrink */
 .side-logo { width: 34px; height: 34px; border-radius: 9px; background: var(--primary); display: grid; place-items: center; flex: none; }
+/* the project name (b tag) in the brand area: white, slightly smaller than normal text (rem = size relative to the normal text size, 0.95rem = 95 percent), semi-bold */
 .side-brand b { display: block; color: #fff; font-size: 0.95rem; font-weight: 650; line-height: 1.2; }
+/* the small subtitle under the project name: smaller text */
 .side-brand span { font-size: 0.75rem; }
+/* .side-group = small heading above a group of menu links: tiny, bold, letters spaced out, ALL CAPITALS (uppercase), grey */
 .side-group { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; padding: 16px 10px 6px; }
+/* .side-link = each menu button in the sidebar: icon and text in a row, full width, no border, no background, grey text */
 .side-link { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; color: var(--side-text);
-  padding: 9px 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; text-align: left; }
+  padding: 9px 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; text-align: left; }  /* (continued) inner space, rounded corners, text size, hand cursor on hover (cursor pointer), text aligned left */
+/* the icon (svg = vector picture) inside a menu link: never shrink, slightly see-through (opacity 0.85) */
 .side-link svg { flex: none; opacity: 0.85; }
+/* :hover = when the mouse is over a menu link: lighter navy background and lighter text */
 .side-link:hover { background: var(--side-active); color: #e2e8f0; }
+/* .side-link.on = the menu link of the page you are on now: highlighted background, white bold text, and a thin blue bar on the left (inset box-shadow draws a line inside the box) */
 .side-link.on { background: var(--side-active); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--primary); }
+/* .side-count = red round number badge on a menu link (for example number of open potholes); margin-left auto = push it to the right end; 999px radius = pill shape */
 .side-count { margin-left: auto; background: var(--red); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+/* .side-foot = bottom part of the sidebar (server status). margin-top auto = push it to the bottom; border-top = thin line above it */
 .side-foot { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid #1e293b; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
+/* .dot = small 8px circle used as a status light (border-radius 50% = circle); grey by default */
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex: none; }
+/* .dot.ok = green light with a soft green glow: the server is online */
 .dot.ok { background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); }
+/* .dot.off = red light: the server is offline */
 .dot.off { background: var(--red); }
 
+/* .main = right side of the app (everything except the sidebar): items one under another (flex column); min-width 0 stops wide content breaking the layout */
 .main { min-width: 0; display: flex; flex-direction: column; }
+/* .header = white top bar of each page with the page title and buttons: thin line under it, items in a row spread to both ends (space-between) */
 .header { background: var(--card); border-bottom: 1px solid var(--line); padding: 18px 32px; display: flex; align-items: center;
-  justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 5; }
+  justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 5; }  /* (continued) position sticky + top 0 = header stays on top while you scroll; z-index 5 = draw it above other content */
+/* .crumb = small grey text above the page title (breadcrumb = shows where you are) */
 .crumb { font-size: 0.78rem; color: var(--muted); margin-bottom: 2px; }
+/* page title (h1) in the header: bigger text, semi-bold, letters slightly closer together */
 .header h1 { font-size: 1.3rem; font-weight: 650; letter-spacing: -0.01em; }
+/* short description under the page title: grey, smaller text */
 .header p { color: var(--muted); font-size: 0.88rem; margin-top: 2px; }
+/* .header-actions = group of buttons on the right of the header: in a row, wrap to the next line if no space */
 .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* .content = the main work area under the header: inner space, maximum width 1320px so it does not get too wide */
 .content { padding: 28px 32px 48px; max-width: 1320px; width: 100%; }
+/* .foot = footer text at the bottom of the page; margin-top auto = push it to the bottom; faint small text with a line above */
 .foot { margin-top: auto; color: var(--faint); font-size: 0.78rem; padding: 18px 32px; border-top: 1px solid var(--line); }
 
 /* ---------- 3. Cards, titles, labels ---------- */
+/* .card = a white box with a thin border, rounded corners (var(--radius)) and a light shadow; used for almost every panel */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+/* .pad = adds 20px of inner space inside a card */
 .pad { padding: 20px; }
+/* .card-head = top row of a card: title on the left, chip or button on the right, space below it */
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+/* the card title (h3): slightly smaller than normal text, semi-bold */
 .card-head h3 { font-size: 0.98rem; font-weight: 650; }
+/* .sub = small grey note in the card head */
 .card-head .sub { color: var(--muted); font-size: 0.82rem; }
+/* .section-title = heading row between sections of a page; scroll-margin-top 90px = when the page jumps to it, leave space so the sticky header does not cover it */
 .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 28px 0 12px; scroll-margin-top: 90px; }
+/* the section heading text (h2): a bit larger, semi-bold */
 .section-title h2 { font-size: 1.05rem; font-weight: 650; }
+/* small grey note next to the section heading */
 .section-title span { color: var(--muted); font-size: 0.84rem; }
+/* .label = small grey CAPITAL label text above a field or value */
 .label { font-size: 0.76rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+/* .help = small grey help or explanation text; line-height = space between lines */
 .help { color: var(--muted); font-size: 0.82rem; margin-top: 6px; line-height: 1.45; }
+/* .muted = make any text grey (less important) */
 .muted { color: var(--muted); }
 
+/* .grid-main = two-column layout: wide left column and a 340px right column; align-items start = boxes start at the top and are not stretched */
 .grid-main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+/* .grid-2 = two equal columns (repeat(2, ...) = make 2 columns), 20px gap */
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+/* .grid-3 = three equal columns, 20px gap */
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+/* .stack = put cards one under another with 20px space between them */
 .stack { display: grid; gap: 20px; align-content: start; }
 
 /* ---------- 4. Buttons and form controls ---------- */
+/* .btn = normal button: icon and text in a row and centred, 38px tall, rounded corners */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 8px;
-  border: 1px solid var(--line); background: var(--card); font-size: 0.88rem; font-weight: 550; cursor: pointer; text-decoration: none; color: var(--text); white-space: nowrap; }
+  border: 1px solid var(--line); background: var(--card); font-size: 0.88rem; font-weight: 550; cursor: pointer; text-decoration: none; color: var(--text); white-space: nowrap; }  /* (continued) thin border, white background, text size, medium-bold, hand cursor, no underline, dark text, text stays on one line (nowrap) */
+/* button when the mouse is over it: light grey background and darker border */
 .btn:hover { background: var(--soft); border-color: #cbd5e1; }
+/* .btn.primary = the main blue button (for example Detect): blue background and white text */
 .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+/* blue button on mouse over: darker blue */
 .btn.primary:hover { background: var(--primary-dark); }
+/* .btn.danger = delete-style button: turns red on mouse over to warn the user */
 .btn.danger:hover { color: var(--red); border-color: #fecaca; background: var(--red-bg); }
+/* .btn.small = smaller button: less tall, less padding, smaller text */
 .btn.small { height: 32px; padding: 0 12px; font-size: 0.82rem; }
+/* .btn.wide = button as wide as its box */
 .btn.wide { width: 100%; }
+/* :disabled = button that cannot be clicked right now: faded (opacity 0.45) and a not-allowed cursor */
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+/* .buttons = a row of buttons with small gaps, wraps to the next line, space above */
 .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 
+/* .field = one form field (label + input); display block = takes its own full line */
 .field { display: block; }
+/* .field + .field = a field that comes right after another field: add space above it */
 .field + .field { margin-top: 14px; }
+/* the label inside a field: on its own line with a small gap below */
 .field .label { display: block; margin-bottom: 6px; }
+/* .input / .select / .textarea = text boxes and drop-down lists: full width, 40px tall, thin border, rounded, white background */
 .input, .select, .textarea { width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); font-size: 0.9rem; }
+/* .textarea = multi-line text box: taller (72px); resize vertical = the user can drag it taller but not wider */
 .textarea { height: 72px; padding: 10px 12px; resize: vertical; }
+/* :focus = the box you are typing in: remove the default outline, blue border and a soft blue glow (box-shadow) around it */
 .input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-bg); }
+/* .form-grid = form fields in 3 equal columns side by side */
 .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+/* inside a form-grid fields sit side by side, so remove the extra top space added by .field + .field */
 .form-grid .field + .field { margin-top: 0; }
 
+/* .segmented = a group of joined option buttons (choose one). grid-auto-flow column = put each button in a new column; grid-auto-columns 1fr = all buttons equal width; grey background */
 .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--gray-bg); border-radius: 8px; padding: 3px; }
+/* each option button in the segmented group: no border or background, grey text, hand cursor */
 .segmented button { border: 0; background: none; height: 32px; border-radius: 6px; font-size: 0.86rem; color: var(--muted); cursor: pointer; }
+/* .on = the chosen option: white background, dark bold text and a small shadow, so it looks raised */
 .segmented button.on { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+/* .slider = a range slider row: the slider and its value next to each other */
 .slider { display: flex; align-items: center; gap: 12px; }
+/* the slider input: flex 1 = take all free space; accent-color = make the slider blue */
 .slider input { flex: 1; accent-color: var(--primary); }
+/* the number shown next to the slider: fixed minimum width, centred, grey box; tabular-nums = all digits same width so the number does not jump */
 .slider b { min-width: 46px; text-align: center; font-size: 0.84rem; background: var(--gray-bg); border-radius: 6px; padding: 3px 0; font-variant-numeric: tabular-nums; }
+/* .setting + .setting = space between one AI setting and the next */
 .setting + .setting { margin-top: 18px; }
+/* label of a setting: on its own line with space below */
 .setting > .label { display: block; margin-bottom: 8px; }
+/* .toggle = a text-only button (looks like a blue link), no border or background */
 .toggle { border: 0; background: none; color: var(--primary); font-weight: 600; font-size: 0.86rem; cursor: pointer; padding: 0; }
 
 /* numbered steps of the inspection form */
+/* .step = row holding the step number, step title and a note */
 .step { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+/* the step number (i tag): 26px blue circle with white text, not italic (font-style normal) */
 .step i { width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: #fff; font-style: normal; font-size: 0.8rem;
-  font-weight: 700; display: grid; place-items: center; flex: none; }
+  font-weight: 700; display: grid; place-items: center; flex: none; }  /* (continued) bold, number placed in the exact centre (grid + place-items center), never shrinks */
+/* the step title (h3) */
 .step h3 { font-size: 0.98rem; font-weight: 650; }
+/* small grey note at the right end of the step row (margin-left auto pushes it right) */
 .step span { color: var(--muted); font-size: 0.82rem; margin-left: auto; }
 
 /* ---------- 5. Upload area and samples ---------- */
+/* .drop = the drag-and-drop upload box: dashed border, soft background, centred text; transition 0.15s = colour changes happen smoothly in 0.15 seconds */
 .drop { border: 1.5px dashed #cbd5e1; border-radius: 10px; background: var(--soft); padding: 30px 20px; text-align: center; transition: 0.15s; }
+/* .drop.over = when a file is dragged over the box: blue border and pale blue background */
 .drop.over { border-color: var(--primary); background: var(--primary-bg); }
+/* .drop-icon = the upload icon square: pale blue, centred; margin 0 auto = centre it left-right */
 .drop-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); display: grid; place-items: center; margin: 0 auto 12px; }
+/* main text of the upload box (bold line) */
 .drop b { display: block; font-size: 0.95rem; }
+/* small grey hint text in the upload box (like allowed file types) */
 .drop span { display: block; color: var(--muted); font-size: 0.84rem; margin: 4px 0 14px; }
+/* .chosen = box showing the file you selected: thumbnail and name in a row, border, soft background */
 .chosen { display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
+/* thumbnail picture of the chosen file; object-fit cover = fill the box and crop extra parts without stretching */
 .chosen img { width: 76px; height: 56px; object-fit: cover; border-radius: 6px; }
+/* text part of the chosen file box: takes the free space (flex 1) */
 .chosen div { flex: 1; min-width: 0; }
+/* file name: if too long, cut it and show ... (text-overflow ellipsis) on one line */
 .chosen b { display: block; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* small grey file details (size etc.) */
 .chosen span { color: var(--muted); font-size: 0.8rem; }
+/* .samples-title = the label above the sample photos */
 .samples-title { margin: 16px 0 8px; display: block; }
+/* .samples = the sample road photos shown in 6 equal columns */
 .samples { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+/* .sample = one clickable sample photo button: no border or padding, rounded, hides overflow; transparent outline that turns blue when chosen */
 .sample { border: 0; padding: 0; background: none; cursor: pointer; border-radius: 8px; overflow: hidden; outline: 2px solid transparent; outline-offset: 2px; }
+/* sample picture: full width, 4:3 shape (aspect-ratio), cropped to fit; transition = zoom smoothly */
 .sample img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 0.2s; }
+/* mouse over a sample: picture zooms in a little (scale 1.05 = 5 percent bigger) */
 .sample:hover img { transform: scale(1.05); }
+/* .sample.on = the chosen sample: blue outline around it */
 .sample.on { outline-color: var(--primary); }
 
 /* ---------- 6. Chips (coloured labels) ---------- */
+/* .chip = small coloured pill label (for example severity or status): rounded pill shape, small bold text, stays on one line */
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+/* ::before = add a small extra part before the chip text: here a 6px dot; currentColor = same colour as the text; content "" = empty but still shown */
 .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* green chip: green text on pale green (good / low / repaired) */
 .chip.green { color: var(--green); background: var(--green-bg); }
+/* amber chip: yellow text on pale yellow (medium / scheduled) */
 .chip.amber { color: var(--amber); background: var(--amber-bg); }
+/* orange chip: orange text on pale orange (high) */
 .chip.orange { color: var(--orange); background: var(--orange-bg); }
+/* red chip: red text on pale red (very dangerous / open) */
 .chip.red { color: var(--red); background: var(--red-bg); }
+/* blue chip: blue text on pale blue (information) */
 .chip.blue { color: var(--blue); background: var(--blue-bg); }
+/* gray chip: grey text on pale grey (neutral) */
 .chip.gray { color: var(--gray); background: var(--gray-bg); }
 
 /* ---------- 7. KPI cards (big numbers) ---------- */
+/* .kpis = row of KPI cards (KPI = key number, like total potholes) in 4 equal columns */
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+/* .kpi = one KPI card: icon and text side by side, aligned at the top */
 .kpi { padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; }
+/* .kpi-icon = the coloured icon square in a KPI card, icon centred */
 .kpi-icon { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; flex: none; }
+/* blue icon square */
 .kpi-icon.blue { background: var(--blue-bg); color: var(--blue); }
+/* red icon square */
 .kpi-icon.red { background: var(--red-bg); color: var(--red); }
+/* amber (yellow) icon square */
 .kpi-icon.amber { background: var(--amber-bg); color: var(--amber); }
+/* green icon square */
 .kpi-icon.green { background: var(--green-bg); color: var(--green); }
+/* the big number in a KPI card: large bold text, digits same width, tight line height */
 .kpi b { display: block; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 4px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+/* small grey caption in a KPI card */
 .kpi small { color: var(--muted); font-size: 0.8rem; }
 
 /* ---------- 8. Result: score ring, summary, bars ---------- */
+/* .summary = result summary card: score ring on the left (auto = as wide as needed) and text on the right */
 .summary { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 26px; align-items: center; padding: 22px 24px; }
+/* .ring = the round danger-score circle, 116px; position relative = so the text inside can be placed on top of it */
 .ring { position: relative; width: 116px; height: 116px; }
+/* the ring drawing (svg) is turned -90 degrees so the coloured arc starts at the top (12 o'clock) */
 .ring svg { transform: rotate(-90deg); }
+/* .ring-text = the score text on top of the ring: position absolute + inset 0 = cover the whole ring; place-content center = text in the middle */
 .ring-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+/* the score number: big and bold */
 .ring-text b { font-size: 1.9rem; font-weight: 700; line-height: 1; }
+/* small grey word under the score */
 .ring-text span { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+/* .verdict = row with the result title and a chip, wraps if needed */
 .verdict { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 2px; }
+/* the verdict text (h2), for example road condition: large and bold */
 .verdict h2 { font-size: 1.3rem; font-weight: 700; }
+/* .advice = grey advice sentence under the verdict */
 .advice { color: var(--muted); margin: 4px 0 14px; font-size: 0.92rem; }
+/* .stats = small numbers row in 4 columns with a line above */
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); padding-top: 12px; gap: 12px; }
+/* each stat number: bold, on its own line */
 .stat b { display: block; font-size: 1.15rem; font-weight: 700; margin-top: 3px; font-variant-numeric: tabular-nums; }
+/* each stat caption: small grey text */
 .stat small { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
 
+/* .tabs = a row of tab buttons (switch between views) on a grey background */
 .tabs { display: flex; gap: 2px; background: var(--gray-bg); border-radius: 8px; padding: 3px; }
+/* each tab button: no border or background, grey text, hand cursor, on one line */
 .tabs button { border: 0; background: none; padding: 5px 12px; border-radius: 6px; font-size: 0.83rem; color: var(--muted); cursor: pointer; white-space: nowrap; }
+/* .on = the active tab: white background, dark bold text, small shadow */
 .tabs button.on { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+/* .photo = the result photo: full width, rounded corners, soft background while loading */
 .photo { width: 100%; border-radius: 8px; background: var(--soft); }
 
+/* .levels = list of severity level bars with 11px space between rows */
 .levels { display: grid; gap: 11px; }
+/* .level-row = one row: level name (74px), bar (rest of the space), count (28px) */
 .level-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 28px; gap: 10px; align-items: center; font-size: 0.87rem; }
+/* .bar = grey track of a progress/level bar, 8px tall, pill shaped; overflow hidden = cut anything outside the rounded shape */
 .bar { height: 8px; background: var(--gray-bg); border-radius: 99px; overflow: hidden; }
+/* the filled blue part of the bar (i tag); its width is set from the code; transition = it grows smoothly */
 .bar i { display: block; height: 100%; border-radius: 99px; background: var(--primary); transition: width 0.3s; }
+/* count number at the end of a level row: right aligned */
 .level-row b { text-align: right; font-variant-numeric: tabular-nums; }
+/* .plan = repair estimate boxes (cost, area, asphalt, crew time) in 2 columns */
 .plan { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+/* each repair estimate box: soft background, border, rounded */
 .plan div { background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+/* small grey caption in an estimate box */
 .plan span { display: block; font-size: 0.74rem; color: var(--muted); }
+/* the value in an estimate box: slightly bigger, digits same width */
 .plan b { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
 
 /* inspection report header */
+/* .report-head = items in a row that wrap; gap = 8px between rows and 28px between columns */
 .report-head { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 16px 20px; }
+/* the small CAPITAL caption of each report item (like Date, Location) */
 .report-head div span { display: block; font-size: 0.74rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+/* the value of each report item */
 .report-head div b { font-size: 0.95rem; }
 
 /* ---------- 9. Tables ---------- */
+/* .table = box around a table; overflow-x auto = scroll sideways if the table is too wide */
 .table { overflow-x: auto; }
+/* table: full width, border-collapse = cells share one border line instead of double lines, slightly smaller text */
 table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+/* th = table header cell: left aligned, small bold grey CAPITAL text */
 th { text-align: left; font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;
-  padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--soft); white-space: nowrap; }
+  padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--soft); white-space: nowrap; }  /* (continued) inner space, line under it, soft background, no line breaks */
+/* td = normal table cell: inner space, line under it, digits same width, content centred vertically */
 td { padding: 11px 14px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; vertical-align: middle; }
+/* no bottom line under the last row of the table */
 tr:last-child td { border-bottom: 0; }
+/* mouse over a table row: very light blue background on its cells */
 tbody tr:hover td { background: #fafcff; }
+/* .cell-bar = a small bar plus a number inside a table cell, side by side */
 .cell-bar { display: flex; align-items: center; gap: 10px; }
+/* the bar inside a table cell takes the free space but is at least 60px */
 .cell-bar .bar { flex: 1; min-width: 60px; }
+/* the number next to the bar: right aligned */
 .cell-bar span { min-width: 36px; text-align: right; }
+/* .thumb = small photo thumbnail in the table (60 x 42 px), cropped to fit */
 .thumb { width: 60px; height: 42px; object-fit: cover; border-radius: 6px; }
+/* .id = the record ID text in the table: bold, blue, one line */
 .id { font-weight: 650; color: var(--primary); white-space: nowrap; }
+/* .status-select = drop-down to change a pothole status, pill shaped, small bold text */
 .status-select { height: 30px; border-radius: 999px; border: 1px solid var(--line); padding: 0 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+/* status Open: red colours (needs repair) */
 .status-select.Open { color: var(--red); background: var(--red-bg); border-color: #fecaca; }
+/* status Scheduled: amber colours (repair planned) */
 .status-select.Scheduled { color: var(--amber); background: var(--amber-bg); border-color: #fde68a; }
+/* status Repaired: green colours (done) */
 .status-select.Repaired { color: var(--green); background: var(--green-bg); border-color: #bbf7d0; }
+/* .icon-btn = small button with only an icon (like delete): no border or background, faint grey */
 .icon-btn { border: 0; background: none; color: var(--faint); cursor: pointer; padding: 6px; border-radius: 6px; display: grid; place-items: center; }
+/* icon button on mouse over: turns red (warning, delete) */
 .icon-btn:hover { background: var(--red-bg); color: var(--red); }
 
+/* .toolbar = row above a table with search box and filters, line underneath */
 .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+/* the search box in the toolbar: at most 300px wide and 36px tall */
 .toolbar .input { max-width: 300px; height: 36px; }
 
 /* ---------- 10. Messages ---------- */
+/* .empty = message shown when there is no data: centred grey text with big padding */
 .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+/* the bold title of the empty message */
 .empty b { display: block; color: var(--text); font-size: 1rem; margin-bottom: 4px; }
+/* .error = red error message box (pale red background, dark red text, red border) */
 .error { background: var(--red-bg); color: #991b1b; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-top: 16px; font-size: 0.88rem; }
+/* .toast = green success message box (for example Saved) */
 .toast { background: var(--green-bg); color: #166534; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; font-size: 0.86rem; margin-top: 12px; }
+/* .loading = row with a spinner and loading text */
 .loading { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.9rem; margin-top: 20px; }
+/* .spinner = small circle with one blue side that keeps turning; animation spin 0.8s linear infinite = run the spin animation every 0.8 seconds, at even speed, forever */
 .spinner { width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+/* @keyframes = describes an animation step by step. spin = turn to 360 degrees (one full circle) */
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ---------- 11. Video, live camera ---------- */
+/* .progress = grey track of the video progress bar, 6px tall */
 .progress { height: 6px; background: var(--gray-bg); border-radius: 99px; overflow: hidden; }
+/* the filled blue part of the progress bar; width set by the code; grows smoothly */
 .progress i { display: block; height: 100%; background: var(--primary); transition: width 0.3s; }
+/* .progress-text = text under the progress bar, one item at each end */
 .progress-text { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
+/* .live-box = black box holding the live camera video; position relative so things can be placed on top; 4:3 shape */
 .live-box { position: relative; border-radius: 8px; overflow: hidden; background: #0b1220; aspect-ratio: 4 / 3; display: grid; place-items: center; }
+/* live-box again: full width but at most 70 percent of the screen height (vh) */
 .live-box { width: 100%; max-height: 70vh; }
+/* .live-video = the camera video, fills the whole live box (position absolute + inset 0) */
 .live-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+/* .live-layer = transparent drawing layer on top of the video for the pothole boxes; pointer-events none = clicks pass through it */
 .live-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* .live-status = small dark see-through pill at the bottom-left of the video with live info, white small text */
 .live-status { position: absolute; bottom: 12px; left: 12px; background: rgba(15, 23, 42, 0.75); color: #fff; font-size: 0.78rem;
-  padding: 5px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  padding: 5px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; }  /* (continued) inner space, pill shape, digits same width */
+/* .live-badge = red LIVE badge at the top-left of the video, small bold white text */
 .live-badge { position: absolute; top: 12px; left: 12px; background: var(--red); color: #fff; font-size: 0.72rem; font-weight: 700;
-  padding: 4px 10px; border-radius: 999px; display: flex; align-items: center; gap: 6px; }
+  padding: 4px 10px; border-radius: 999px; display: flex; align-items: center; gap: 6px; }  /* (continued) inner space, pill shape, dot and text in a row */
+/* the white blinking dot before the word LIVE; animation blink 1s infinite = blink every second forever */
 .live-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: blink 1s infinite; }
+/* @keyframes blink = halfway through (50 percent) the dot becomes faded (opacity 0.2), then back */
 @keyframes blink { 50% { opacity: 0.2; } }
+/* .live-off = grey centred message shown when the camera is off */
 .live-off { color: #94a3b8; text-align: center; padding: 20px; font-size: 0.9rem; }
 
 /* ---------- 12. Compare, methodology ---------- */
+/* .mini-stats = small number boxes in 3 equal columns */
 .mini-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+/* each mini stat box: soft background, border, rounded */
 .mini-stats div { background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+/* small grey caption in a mini stat box */
 .mini-stats span { display: block; font-size: 0.74rem; color: var(--muted); }
+/* value in a mini stat box */
 .mini-stats b { font-size: 1rem; font-variant-numeric: tabular-nums; }
+/* .step-num = numbered square on the methodology (How it works) page: pale blue square with blue number centred */
 .step-num { width: 28px; height: 28px; border-radius: 8px; background: var(--primary-bg); color: var(--primary); display: grid; place-items: center; font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; }
+/* title (h3) of each methodology card */
 .method h3 { font-size: 0.96rem; margin-bottom: 6px; }
+/* paragraph of each methodology card: grey text with comfortable line spacing */
 .method p { color: var(--muted); font-size: 0.87rem; line-height: 1.55; }
+/* .kv = key-value row (name on the left, value on the right), for example accuracy numbers; line underneath */
 .kv { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+/* no line under the last key-value row (:last-child = the last one) */
 .kv:last-child { border-bottom: 0; }
+/* the name (key) part is grey */
 .kv span { color: var(--muted); }
+/* .chart = the dashboard chart drawing (svg): full width, 190px tall */
 .chart { width: 100%; height: 190px; display: block; }
 
 /* ---------- 13. Printing (the "Save as PDF" report) ---------- */
+/* .print-only = parts shown only when printing; hidden (display none) on the screen */
 .print-only { display: none; }
+/* @media print = rules that only apply when printing or saving as PDF */
 @media print {
+  /* @page = paper settings: 12mm empty margin on every side */
   @page { margin: 12mm; }
+  /* white page and smaller text on paper */
   body { background: #fff; font-size: 12px; }
+  /* hide the sidebar, header, footer, buttons, tabs and loading text on paper; !important = this rule wins over any other rule */
   .side, .header, .foot, .no-print, .buttons, .tabs, .loading { display: none !important; }
+  /* remove the two-column grid so content uses the whole paper width */
   .shell { display: block; }
+  /* now show the print-only parts (like the report title) */
   .print-only { display: block; margin-bottom: 14px; }
+  /* no extra padding and no maximum width on paper */
   .content { padding: 0; max-width: none; }
+  /* cards without shadow; break-inside avoid = do not split a card across two pages */
   .card { box-shadow: none; break-inside: avoid; }
+  /* on paper the right column of grid-main is narrower (250px) */
   .grid-main { grid-template-columns: minmax(0, 1fr) 250px; }
+  /* print-color-adjust exact = print the background colours too (browsers skip them by default) */
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
+}  /* end of the print rules */
 
 /* ---------- 14. Smaller screens ---------- */
+/* @media (max-width: 1100px) = rules that only apply on screens 1100px wide or smaller (small laptops, tablets) */
 @media (max-width: 1100px) {
+  /* grid-main and grid-2 become a single column (boxes stack one under another) */
   .grid-main, .grid-2 { grid-template-columns: minmax(0, 1fr); }
+  /* KPI cards: 2 per row instead of 4 */
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* grid-3: 2 columns instead of 3 */
   .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
+}  /* end of the 1100px rules */
+/* @media (max-width: 800px) = rules that only apply on screens 800px wide or smaller (phones) */
 @media (max-width: 800px) {
+  /* the app becomes one column: sidebar on top, content below */
   .shell { grid-template-columns: minmax(0, 1fr); }
+  /* sidebar is no longer sticky (position static = normal), becomes a short horizontal bar (flex-direction row) that scrolls sideways; scrollbar-width none = hide the scrollbar */
   .side { position: static; height: auto; flex-direction: row; align-items: center; overflow-x: auto; padding: 10px; gap: 4px; scrollbar-width: none; }
+  /* also hide the scrollbar in Chrome and Safari (-webkit- = rule for those browsers) */
   .side::-webkit-scrollbar { display: none; }
+  /* hide the subtitle, group headings and sidebar footer to save space */
   .side-brand span, .side-group, .side-foot { display: none; }
+  /* smaller space around the logo */
   .side-brand { padding: 0 8px 0 0; }
+  /* hide the project name, only the logo shows */
   .side-brand b { display: none; }
+  /* menu links only as wide as their text and on one line */
   .side-link { width: auto; white-space: nowrap; }
+  /* header no longer sticky and has less padding */
   .header { position: static; padding: 16px; }
+  /* less padding around the main content */
   .content { padding: 20px 16px 40px; }
+  /* form fields, grid-3 and KPI cards all become one column */
   .form-grid, .grid-3, .kpis { grid-template-columns: minmax(0, 1fr); }
+  /* sample photos: 3 per row instead of 6 */
   .samples { grid-template-columns: repeat(3, 1fr); }
+  /* result summary: score ring above the text, everything centred */
   .summary { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  /* centre the verdict row too */
   .verdict { justify-content: center; }
+  /* stats: 2 per row instead of 4 */
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
+}  /* end of the 800px rules */
