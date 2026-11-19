@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+
+# Website (re-made by "npm install" / "npm run build")
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Made when you run the tools
+results/
+runs/
+dataset*/
+
+# Mac / editors
+.DS_Store
+.vscode/
+.idea/
+
+# Saved scans (the Dashboard history)
+history.db
+
+# Claude Code app settings (personal)
+.claude/

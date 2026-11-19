@@ -1,0 +1,823 @@
+<title>Pothole Detection System Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky contents menu on the left, one readable column of content on the right */
+:root {
+  --bg: #f5f7fa; --surface: #ffffff; --soft: #eef2f7; --text: #142033; --muted: #5b6878; --line: #dde3eb;
+  --accent: #2459d6; --accent-soft: #e8efff; --road: #e8a800; --road-soft: #fff6d6;
+  --code-bg: #0f1726; --code-text: #dbe4f0; --code-key: #8ab4ff; --code-str: #f5c97a; --code-com: #7f8ea3;
+  --green: #15803d; --green-soft: #e9f8ee; --amber: #a16207; --amber-soft: #fef7dc;
+  --orange: #c2410c; --orange-soft: #fff0e6; --red: #c62828; --red-soft: #fdecec;
+  --f-head: "Space Grotesk", "Inter", -apple-system, sans-serif;
+  --f-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c121b; --surface: #131b27; --soft: #1a2433; --text: #e7edf5; --muted: #9aa8b9; --line: #263244;
+  --accent: #7aa7ff; --accent-soft: #1b2a47; --road: #f3c33c; --road-soft: #2e2611;
+  --code-bg: #0a0f17; --code-text: #dbe4f0;
+  --green: #4ade80; --green-soft: #12291c; --amber: #facc15; --amber-soft: #2b250c;
+  --orange: #fb923c; --orange-soft: #2e1d10; --red: #f87171; --red-soft: #321515; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c121b; --surface: #131b27; --soft: #1a2433; --text: #e7edf5; --muted: #9aa8b9; --line: #263244;
+  --accent: #7aa7ff; --accent-soft: #1b2a47; --road: #f3c33c; --road-soft: #2e2611;
+  --code-bg: #0a0f17; --code-text: #dbe4f0;
+  --green: #4ade80; --green-soft: #12291c; --amber: #facc15; --amber-soft: #2b250c;
+  --orange: #fb923c; --orange-soft: #2e1d10; --red: #f87171; --red-soft: #321515; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 16px/1.65 var(--f-body); margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 48px; }
+h1, h2, h3 { font-family: var(--f-head); line-height: 1.2; text-wrap: balance; margin: 0; }
+h2 { font-size: 1.65rem; letter-spacing: -0.01em; }
+h3 { font-size: 1.12rem; margin-top: 28px; }
+p { margin: 10px 0 0; }
+a { color: var(--accent); }
+code { font-family: var(--f-mono); font-size: 0.86em; background: var(--soft); padding: 1px 6px; border-radius: 5px; }
+b, strong { font-weight: 600; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* contents menu */
+.toc { position: sticky; top: calc(20px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 40px); overflow-y: auto; }
+.toc-title { font: 600 0.72rem var(--f-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.toc a { display: flex; gap: 10px; padding: 6px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+.toc a span { font-family: var(--f-mono); font-size: 0.78rem; color: var(--faint, var(--muted)); min-width: 18px; padding-top: 2px; }
+.toc a:hover { background: var(--soft); color: var(--text); }
+.toc a.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.toc-mobile { display: none; }
+
+main { min-width: 0; }
+section { padding-top: 56px; scroll-margin-top: 12px; }
+section:first-of-type { padding-top: 0; }
+.kicker { font: 600 0.75rem var(--f-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; display: block; }
+.lead { font-size: 1.08rem; color: var(--muted); max-width: 68ch; }
+.prose { max-width: 70ch; }
+
+/* cover */
+.cover { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 36px 36px 30px; position: relative; overflow: hidden; }
+.cover::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
+  background: repeating-linear-gradient(90deg, var(--road) 0 46px, transparent 46px 78px); }
+.cover h1 { font-size: clamp(2rem, 4.6vw, 3rem); letter-spacing: -0.025em; margin-top: 6px; }
+.cover .lead { margin-top: 14px; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
+.fact { background: var(--soft); border-radius: 12px; padding: 14px 16px; }
+.fact b { display: block; font: 700 1.35rem var(--f-head); }
+.fact span { font-size: 0.82rem; color: var(--muted); }
+
+/* boxes */
+.say { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0; padding: 16px 20px; margin-top: 20px; }
+.say .label { font: 600 0.74rem var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.say p { margin-top: 6px; }
+.tip { background: var(--road-soft); border-radius: 12px; padding: 14px 18px; margin-top: 18px; font-size: 0.95rem; }
+.tip b { color: var(--text); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; min-width: 0; }
+.card h4 { font: 600 1rem var(--f-head); margin: 0; display: flex; align-items: center; gap: 8px; }
+.card p { font-size: 0.93rem; color: var(--muted); margin-top: 6px; }
+.tag { font: 600 0.7rem var(--f-mono); padding: 2px 8px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+
+/* steps */
+.steps { counter-reset: s; display: grid; gap: 12px; margin-top: 18px; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.step::before { counter-increment: s; content: counter(s); width: 34px; height: 34px; border-radius: 10px; background: var(--accent); color: #fff;
+  display: grid; place-items: center; font: 700 0.95rem var(--f-head); }
+.step h4 { font: 600 1rem var(--f-head); margin: 4px 0 0; }
+.step p { font-size: 0.93rem; color: var(--muted); margin-top: 4px; }
+
+/* code */
+.code { position: relative; margin-top: 16px; border-radius: 12px; background: var(--code-bg); overflow: hidden; }
+.code-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; font: 500 0.78rem var(--f-mono); color: var(--code-com); border-bottom: 1px solid #ffffff14; }
+.code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 0.84rem/1.6 var(--f-mono); color: var(--code-text); }
+.code .k { color: var(--code-key); } .code .s { color: var(--code-str); } .code .c { color: var(--code-com); font-style: italic; }
+.copy { font: 600 0.74rem var(--f-body); background: #ffffff14; color: var(--code-text); border: 0; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.copy:hover { background: #ffffff26; }
+
+/* folder tree */
+.tree { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; overflow-x: auto; }
+.tree pre { margin: 0; font: 0.86rem/1.75 var(--f-mono); color: var(--text); }
+.tree .d { color: var(--accent); font-weight: 600; } .tree .n { color: var(--muted); }
+
+/* tables */
+.table { margin-top: 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+th { text-align: left; font: 600 0.74rem var(--f-body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); background: var(--soft); padding: 10px 14px; white-space: nowrap; }
+td { padding: 10px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+td code { white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; text-align: right; }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 0.78rem var(--f-body); padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.low { color: var(--green); background: var(--green-soft); } .med { color: var(--amber); background: var(--amber-soft); }
+.high { color: var(--orange); background: var(--orange-soft); } .crit { color: var(--red); background: var(--red-soft); }
+
+/* architecture diagram */
+.flow { margin-top: 18px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; align-items: stretch; }
+.node { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; text-align: center; position: relative; }
+.node b { display: block; font: 600 0.92rem var(--f-head); }
+.node small { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+.node code { font-size: 0.72rem; }
+.node.web { border-color: var(--accent); } .node.db { border-color: var(--road); }
+.arrow { display: grid; place-items: center; color: var(--muted); font-size: 0.75rem; text-align: center; }
+.flow-wrap { overflow-x: auto; }
+.flow-wrap .flow { min-width: 760px; grid-template-columns: 1fr 44px 1fr 44px 1fr 44px 1fr 44px 1fr; }
+
+/* worked example */
+.calc { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.calc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 10px 18px; border-top: 1px solid var(--line); font-size: 0.93rem; }
+.calc-row:first-child { border-top: 0; }
+.calc-row span { color: var(--muted); }
+.calc-row b { font-variant-numeric: tabular-nums; text-align: right; }
+.calc-row.total { background: var(--soft); font-weight: 600; }
+
+/* viva Q&A */
+.qa-tools { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; position: sticky; top: env(safe-area-inset-top, 0px); background: var(--bg); padding: 10px 0; z-index: 2; }
+.qa-tools input { flex: 1; min-width: 200px; height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 0 14px; font: inherit; color: var(--text); }
+.btn { height: 42px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); padding: 0 14px; font: 600 0.88rem var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.qa-group { font: 600 0.78rem var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 26px 0 8px; }
+details.qa { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-top: 8px; }
+details.qa summary { cursor: pointer; padding: 13px 16px; font-weight: 600; list-style: none; display: flex; gap: 12px; }
+details.qa summary::-webkit-details-marker { display: none; }
+details.qa summary::before { content: "+"; font: 700 1.1rem/1.4 var(--f-mono); color: var(--accent); width: 14px; flex: none; }
+details.qa[open] summary::before { content: "−"; }
+details.qa .ans { padding: 0 16px 14px 42px; color: var(--text); font-size: 0.95rem; }
+details.qa .ans p:first-child { margin-top: 0; }
+.qa-count { color: var(--muted); font-size: 0.88rem; margin-top: 6px; }
+.empty-search { display: none; color: var(--muted); padding: 20px 0; }
+
+.foot { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+
+@media (max-width: 920px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .toc { display: none; }
+  .toc-mobile { display: block; }
+  .toc-mobile summary { cursor: pointer; font-weight: 600; padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  .toc-mobile nav { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 10px 4px; }
+  .toc-mobile a { color: var(--muted); text-decoration: none; padding: 6px 10px; font-size: 0.92rem; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid3 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .cover { padding: 26px 20px 26px; }
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .toc-mobile nav { grid-template-columns: 1fr; }
+  details.qa .ans { padding-left: 16px; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <!-- ================= CONTENTS MENU ================= -->
+  <aside class="toc" aria-label="Contents">
+    <div class="toc-title">Contents</div>
+    <nav id="toc">
+      <a href="#start"><span>01</span>The project in 1 minute</a>
+      <a href="#run"><span>02</span>How to run it</a>
+      <a href="#features"><span>03</span>What each page does</a>
+      <a href="#architecture"><span>04</span>How the parts connect</a>
+      <a href="#folders"><span>05</span>Folder structure</a>
+      <a href="#backend"><span>06</span>Backend code, file by file</a>
+      <a href="#frontend"><span>07</span>Website code, file by file</a>
+      <a href="#ai"><span>08</span>How the AI finds potholes</a>
+      <a href="#scores"><span>09</span>Scores and repair estimate</a>
+      <a href="#data"><span>10</span>API and database</a>
+      <a href="#speed"><span>11</span>Speed and keeping cool</a>
+      <a href="#accuracy"><span>12</span>Accuracy</a>
+      <a href="#words"><span>13</span>Key words explained</a>
+      <a href="#viva"><span>14</span>Viva questions &amp; answers</a>
+      <a href="#limits"><span>15</span>Limits and future work</a>
+    </nav>
+  </aside>
+
+  <main>
+    <details class="toc-mobile">
+      <summary>Contents</summary>
+      <nav>
+        <a href="#start">1 · The project in 1 minute</a><a href="#run">2 · How to run it</a>
+        <a href="#features">3 · What each page does</a><a href="#architecture">4 · How the parts connect</a>
+        <a href="#folders">5 · Folder structure</a><a href="#backend">6 · Backend code</a>
+        <a href="#frontend">7 · Website code</a><a href="#ai">8 · How the AI works</a>
+        <a href="#scores">9 · Scores and repair</a><a href="#data">10 · API and database</a>
+        <a href="#speed">11 · Speed and cooling</a><a href="#accuracy">12 · Accuracy</a>
+        <a href="#words">13 · Key words</a><a href="#viva">14 · Viva Q&amp;A</a><a href="#limits">15 · Limits</a>
+      </nav>
+    </details>
+
+    <!-- ================= 1. START ================= -->
+    <section id="start">
+      <div class="cover">
+        <span class="kicker">Project guide · read this before the viva</span>
+        <h1>Pothole Detection System</h1>
+        <p class="lead">An AI road-inspection system. It looks at road photos, videos or a live camera, finds every pothole,
+          rates how dangerous each one is, gives the road a score from 0 to 100, estimates the repair cost, and keeps a record
+          of every inspection until the road is repaired.</p>
+        <div class="facts">
+          <div class="fact"><b>3</b><span>YOLO AI models working together</span></div>
+          <div class="fact"><b>0–100</b><span>Road Condition Index</span></div>
+          <div class="fact"><b>4</b><span>severity levels, Low → Critical</span></div>
+          <div class="fact"><b>~0.3 s</b><span>per photo on a laptop CPU</span></div>
+        </div>
+      </div>
+
+      <div class="say">
+        <div class="label">Say this when someone asks “what is your project?”</div>
+        <p>“Our project is an AI system that helps a city’s road department find and fix potholes. An inspector uploads a road
+          photo or video, or points a camera at the road. Three YOLO deep-learning models find the potholes, and the system
+          grades each one from Low to Critical, gives the road a condition score out of 100, and estimates the repair cost
+          and how soon it must be fixed. Every inspection is saved, so the department can see the worst roads first and
+          track each repair from Open to Scheduled to Repaired.”</p>
+      </div>
+
+      <h3>The problem it solves</h3>
+      <div class="grid3">
+        <div class="card"><h4>Slow</h4><p>Inspectors check roads by eye and write notes by hand. It takes a long time to cover a city.</p></div>
+        <div class="card"><h4>Not consistent</h4><p>Two people judge the same pothole differently. There is no common score.</p></div>
+        <div class="card"><h4>No priority</h4><p>Without numbers it is hard to decide which road to repair first or how much money is needed.</p></div>
+      </div>
+      <p class="prose">Our system gives the same, fast, measurable answer every time: how many potholes, how bad, which road
+        first, and roughly what it will cost.</p>
+    </section>
+
+    <!-- ================= 2. RUN ================= -->
+    <section id="run">
+      <span class="kicker">Section 2</span>
+      <h2>How to run it</h2>
+      <p class="lead">One command starts everything. Open a terminal in the project folder and run:</p>
+      <div class="code"><div class="code-head"><span>Terminal</span><button class="copy" data-copy="cd ~/Desktop/Pothole-Detection-System-main && ./start.sh">Copy</button></div>
+<pre>cd ~/Desktop/Pothole-Detection-System-main &amp;&amp; ./start.sh</pre></div>
+      <p>The browser opens <b>http://localhost:8000</b> by itself. To stop it, press <b>Ctrl + C</b> in that terminal.</p>
+
+      <h3>What start.sh does, in order</h3>
+      <div class="steps">
+        <div class="step"><div><h4>Installs what is missing</h4><p>Only the first time: makes the Python environment (<code>.venv</code>) and installs the website packages (<code>node_modules</code>).</p></div></div>
+        <div class="step"><div><h4>Builds the website</h4><p>Only when a file in <code>frontend/app</code> changed. Next.js turns the code into plain web files in <code>frontend/out</code>.</p></div></div>
+        <div class="step"><div><h4>Frees the port</h4><p>If an old copy is still running on port 8000, it stops it, so the new one can start.</p></div></div>
+        <div class="step"><div><h4>Starts the server</h4><p>Runs <code>backend/server.py</code>. It shows the website and runs the AI, all on one address.</p></div></div>
+      </div>
+
+      <h3>If something goes wrong</h3>
+      <div class="table"><table>
+        <thead><tr><th>You see</th><th>Why</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>Red banner “AI server is not running”</td><td>The Python server is stopped</td><td>Run <code>./start.sh</code></td></tr>
+          <tr><td>Red banner “running an old version”</td><td>The server started before the code changed</td><td>Ctrl + C, then <code>./start.sh</code> again</td></tr>
+          <tr><td>“address already in use”</td><td>Another copy is using port 8000</td><td><code>./start.sh</code> stops it by itself</td></tr>
+          <tr><td>Camera does not open</td><td>The browser blocked the camera</td><td>Click the camera icon in the address bar → Allow</td></tr>
+          <tr><td>Start with an empty history</td><td>Old inspections are in <code>history.db</code></td><td>Delete <code>history.db</code> (or “Delete all” on Inspections)</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ================= 3. FEATURES ================= -->
+    <section id="features">
+      <span class="kicker">Section 3</span>
+      <h2>What each page does</h2>
+      <p class="lead">The website looks like real admin software: a menu on the left, the work area on the right.</p>
+      <div class="table"><table>
+        <thead><tr><th>Page</th><th>What it does</th><th>Code file</th></tr></thead>
+        <tbody>
+          <tr><td><b>Overview</b></td><td>Home page. Total inspections, open cases, critical potholes not repaired, repair backlog in ₹, a road-score trend chart, repair status, and a <b>priority queue</b> (worst roads first).</td><td><code>DashboardView.js</code></td></tr>
+          <tr><td><b>New inspection</b></td><td>Step 1: road, ward, inspector, notes. Step 2: photo. Step 3: the report with an ID like <b>INS-0001</b>, marked photo, road index, severity, repair estimate, GPS location, pothole list, print / PDF.</td><td><code>PhotoView.js</code></td></tr>
+          <tr><td><b>Video survey</b></td><td>Checks a whole street from a video. Results appear live, frame by frame. The summary is saved as an inspection.</td><td><code>VideoView.js</code></td></tr>
+          <tr><td><b>Live camera</b></td><td>Real-time detection: the camera video plays smoothly and coloured boxes are drawn on top. “Save as inspection” stores the view.</td><td><code>LiveView.js</code></td></tr>
+          <tr><td><b>Inspections</b></td><td>Every inspection. Search, filter by status, change status (Open → Scheduled → Repaired), export to Excel (CSV), delete.</td><td><code>DashboardView.js</code></td></tr>
+          <tr><td><b>Model comparison</b></td><td>Runs all 4 AI engines on the same photo, side by side, with “Most found” and “Fastest” badges.</td><td><code>CompareView.js</code></td></tr>
+          <tr><td><b>Methodology</b></td><td>Explains the method, the severity table and the accuracy numbers. Useful while presenting.</td><td><code>page.js</code></td></tr>
+        </tbody>
+      </table></div>
+      <div class="tip"><b>Demo order that works well in class:</b> Overview (empty) → New inspection with a sample photo → show the report and repair estimate → Live camera with a pothole photo on your phone → Inspections, change a status → back to Overview, now full of numbers.</div>
+    </section>
+
+    <!-- ================= 4. ARCHITECTURE ================= -->
+    <section id="architecture">
+      <span class="kicker">Section 4</span>
+      <h2>How the parts connect</h2>
+      <p class="lead">There are two parts. The <b>website</b> (Next.js) is what you see. The <b>server</b> (Python) runs the AI and stores data.
+        They talk over HTTP, the same way any website talks to its server.</p>
+      <div class="flow-wrap"><div class="flow">
+        <div class="node web"><b>Website</b><small>Next.js · React</small><small><code>frontend/app</code></small></div>
+        <div class="arrow">photo →</div>
+        <div class="node"><b>Server</b><small>FastAPI</small><small><code>server.py</code></small></div>
+        <div class="arrow">image →</div>
+        <div class="node"><b>AI detector</b><small>3 YOLO models</small><small><code>detector.py</code></small></div>
+        <div class="arrow">boxes →</div>
+        <div class="node"><b>Report</b><small>scores, repair, drawing</small><small><code>report.py</code></small></div>
+        <div class="arrow">save →</div>
+        <div class="node db"><b>Database</b><small>SQLite file</small><small><code>history.db</code></small></div>
+      </div></div>
+      <p>The answer travels back the same way: the server sends the marked photo, the scores and the repair estimate to the website as <b>JSON</b> (text data), and the website shows it.</p>
+
+      <h3>One inspection, step by step</h3>
+      <div class="steps">
+        <div class="step"><div><h4>You pick a photo</h4><p><code>PhotoView.js</code> tells <code>page.js</code>, which calls <code>analyzePhoto()</code> in <code>api.js</code>. It sends the photo + settings + road details to <code>POST /api/analyze</code>.</p></div></div>
+        <div class="step"><div><h4>The server reads the photo</h4><p><code>read_photo()</code> turns the bytes into an image. <code>read_gps()</code> reads the location hidden in the photo, if there is one.</p></div></div>
+        <div class="step"><div><h4>The AI finds potholes</h4><p><code>Detector.find()</code> runs the models, merges their boxes and removes duplicates. The result is remembered, so the same photo is not checked twice.</p></div></div>
+        <div class="step"><div><h4>The report is built</h4><p><code>build_report()</code> filters weak boxes, gives each pothole a danger score and level, scores the road, estimates the repair, and draws the boxes.</p></div></div>
+        <div class="step"><div><h4>It is saved and sent back</h4><p><code>database.save_scan()</code> stores the inspection and returns its number. The website shows the report.</p></div></div>
+      </div>
+    </section>
+
+    <!-- ================= 5. FOLDERS ================= -->
+    <section id="folders">
+      <span class="kicker">Section 5</span>
+      <h2>Folder structure</h2>
+      <p class="lead">16 code files in two folders. Every file starts with a comment that explains what it does.</p>
+      <div class="tree"><pre><span class="d">Pothole-Detection-System/</span>
+├── start.sh                 <span class="n">← run this: installs, builds, starts everything</span>
+├── requirements.txt         <span class="n">← list of Python libraries</span>
+├── README.md                <span class="n">← short instructions</span>
+│
+├── <span class="d">backend/</span>                 <span class="n">← PYTHON: AI + server + database</span>
+│   ├── config.py            <span class="n">← ALL settings in one place (change numbers here)</span>
+│   ├── detector.py          <span class="n">← runs the 3 YOLO models, merges their boxes</span>
+│   ├── report.py            <span class="n">← danger score, road index, repair estimate, drawing</span>
+│   ├── database.py          <span class="n">← saves inspections in history.db (SQLite)</span>
+│   ├── server.py            <span class="n">← the API + shows the website</span>
+│   └── tools.py             <span class="n">← terminal tools: check a folder, clean data, train</span>
+│
+├── <span class="d">frontend/</span>                <span class="n">← NEXT.JS: the website</span>
+│   ├── package.json         <span class="n">← list of website libraries</span>
+│   ├── next.config.mjs      <span class="n">← "build as plain files"</span>
+│   └── <span class="d">app/</span>
+│       ├── page.js          <span class="n">← app frame: menu, header, page switching, Methodology</span>
+│       ├── DashboardView.js <span class="n">← Overview + Inspections pages</span>
+│       ├── PhotoView.js     <span class="n">← New inspection page</span>
+│       ├── VideoView.js     <span class="n">← Video survey page</span>
+│       ├── LiveView.js      <span class="n">← Live camera page</span>
+│       ├── CompareView.js   <span class="n">← Model comparison page</span>
+│       ├── parts.js         <span class="n">← shared pieces: icons, chips, cards, score ring</span>
+│       ├── api.js           <span class="n">← all calls to the Python server</span>
+│       ├── layout.js        <span class="n">← page title and frame</span>
+│       └── globals.css      <span class="n">← all the styles (colours, layout)</span>
+│
+├── <span class="d">models/</span>                  <span class="n">← the 3 trained AI models (.pt files)</span>
+├── <span class="d">samples/</span>                 <span class="n">← 6 example road photos</span>
+└── history.db               <span class="n">← the database (made automatically)</span></pre></div>
+      <div class="tip"><b>Easy way to remember it:</b> <code>backend</code> = brain (Python, AI, data). <code>frontend</code> = face (what you see). <code>config.py</code> = the control panel.</div>
+    </section>
+
+    <!-- ================= 6. BACKEND ================= -->
+    <section id="backend">
+      <span class="kicker">Section 6</span>
+      <h2>Backend code, file by file</h2>
+      <p class="lead">Six Python files in <code>backend/</code>. Read them in this order.</p>
+
+      <h3>config.py — the control panel</h3>
+      <p class="prose">Every number the project uses lives here: model files, engines, confidence presets, tile size, severity levels,
+        road penalties, repair rates in ₹, and CPU limits. To change how the system behaves, you only edit this file.</p>
+      <div class="code"><div class="code-head"><span>backend/config.py (part)</span></div>
+<pre><span class="c"># Per severity level: depth (cm), repair cost per m², and how soon it must be fixed.</span>
+REPAIR = {
+    <span class="s">"Low"</span>:      {<span class="s">"depth_cm"</span>: 2, <span class="s">"cost_per_m2"</span>: 600,  <span class="s">"repair_within"</span>: <span class="s">"Next routine check"</span>},
+    <span class="s">"Medium"</span>:   {<span class="s">"depth_cm"</span>: 4, <span class="s">"cost_per_m2"</span>: 900,  <span class="s">"repair_within"</span>: <span class="s">"Within 30 days"</span>},
+    <span class="s">"High"</span>:     {<span class="s">"depth_cm"</span>: 6, <span class="s">"cost_per_m2"</span>: 1300, <span class="s">"repair_within"</span>: <span class="s">"Within 7 days"</span>},
+    <span class="s">"Critical"</span>: {<span class="s">"depth_cm"</span>: 8, <span class="s">"cost_per_m2"</span>: 1800, <span class="s">"repair_within"</span>: <span class="s">"Within 24 hours"</span>},
+}</pre></div>
+
+      <h3>detector.py — finds the potholes</h3>
+      <p class="prose">Loads the YOLO models and runs them. Main functions:</p>
+      <div class="table"><table>
+        <thead><tr><th>Function</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>load_model()</code></td><td>Opens a <code>.pt</code> model file from <code>models/</code>.</td></tr>
+          <tr><td><code>run_model()</code></td><td>Runs ONE model on ONE image. Returns boxes and confidence scores, only for the “pothole” class.</td></tr>
+          <tr><td><code>run_model_with_tiles()</code></td><td>For big photos: also checks 640 × 640 squares at full detail, so tiny far-away potholes are found.</td></tr>
+          <tr><td><code>overlap()</code></td><td>How much two boxes overlap, 0 to 1 (called IoU).</td></tr>
+          <tr><td><code>merge_boxes()</code></td><td>Weighted Box Fusion: boxes from different models on the same pothole become one box.</td></tr>
+          <tr><td><code>remove_duplicates()</code></td><td>Removes a box that sits mostly inside a stronger box.</td></tr>
+          <tr><td><code>road_check()</code></td><td>Throws away boxes that are mostly green (grass) or tall and white (lane paint).</td></tr>
+          <tr><td><code>Detector.find()</code></td><td>Puts it all together for one image. Returns boxes, scores and the time taken.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="code"><div class="code-head"><span>backend/detector.py — Detector.find()</span></div>
+<pre>main_results = [run_model(model, image) <span class="k">for</span> model <span class="k">in</span> self.main_models]      <span class="c"># 1. every main model looks</span>
+helper_result = run_model_with_tiles(self.helper_model, image)          <span class="c"># 2. helper looks (with tiles)</span>
+boxes, scores = merge_boxes(main_results, helper_result)                <span class="c"># 3. join the answers</span>
+boxes, scores = remove_duplicates(boxes, scores)                        <span class="c"># 4. remove duplicates</span></pre></div>
+
+      <h3>report.py — turns boxes into a report</h3>
+      <p class="prose">Takes the boxes and makes everything the website shows: danger score and level per pothole, the Road Condition
+        Index, the repair estimate, and the photo with boxes drawn on it.</p>
+      <div class="code"><div class="code-head"><span>backend/report.py — danger_score()</span></div>
+<pre><span class="k">def</span> danger_score(box, width, height, confidence):
+    x1, y1, x2, y2 = box
+    size_share = (x2 - x1) * (y2 - y1) / (width * height)            <span class="c"># part of the photo it covers</span>
+    size   = min(size_share / 0.05, 1.0) * 50                        <span class="c"># up to 50 points</span>
+    centre = (1 - abs((x1 + x2) / 2 - width / 2) / (width / 2)) * 20 <span class="c"># up to 20 points</span>
+    close  = ((y1 + y2) / 2 / height) * 15                            <span class="c"># up to 15 points</span>
+    sure   = confidence * 15                                          <span class="c"># up to 15 points</span>
+    <span class="k">return</span> round(size + centre + close + sure, 1)</pre></div>
+
+      <h3>database.py — remembers every inspection</h3>
+      <p class="prose">Uses <b>SQLite</b>, a database that is just one file (<code>history.db</code>), built into Python. One table, <code>scans</code>,
+        one row per inspection. <code>save_scan()</code> adds or updates a row, <code>update_scan()</code> changes the status,
+        <code>history()</code> returns all rows plus totals for the Overview.</p>
+      <p class="prose">Each photo gets a <b>fingerprint</b> (SHA-1 hash of its bytes). Checking the same photo again updates the same row instead of
+        making a duplicate, and it never resets the repair status.</p>
+
+      <h3>server.py — the API</h3>
+      <p class="prose">Built with <b>FastAPI</b>. It receives requests from the website, calls the detector and report, saves to the database and
+        answers with JSON. It also serves the built website, so everything runs on one address. Details of each endpoint are in
+        <a href="#data">Section 10</a>.</p>
+
+      <h3>tools.py — extra terminal commands</h3>
+      <div class="table"><table>
+        <thead><tr><th>Command (from the backend folder)</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>../.venv/bin/python tools.py check-folder ../samples</code></td><td>Checks every photo in a folder, saves marked photos and <code>report.csv</code> in <code>results/</code>.</td></tr>
+          <tr><td><code>../.venv/bin/python tools.py dataset-check ../my_dataset</code></td><td>Counts boxes per class, finds broken lines and tiny boxes in a training dataset.</td></tr>
+          <tr><td><code>../.venv/bin/python tools.py dataset-clean ../my_dataset --keep 0 2</code></td><td>Keeps only pothole classes, removes bad boxes and empty photos.</td></tr>
+          <tr><td><code>../.venv/bin/python tools.py train ../my_dataset/data.yaml</code></td><td>Trains your own YOLO model and prints precision, recall and mAP.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ================= 7. FRONTEND ================= -->
+    <section id="frontend">
+      <span class="kicker">Section 7</span>
+      <h2>Website code, file by file</h2>
+      <p class="lead">Built with <b>Next.js</b> (React). Each page is one component. React redraws the page by itself whenever its
+        <b>state</b> changes (state = what the user chose + the latest answer from the server).</p>
+      <div class="grid2">
+        <div class="card"><h4>page.js <span class="tag">frame</span></h4><p>The sidebar menu, the page header, and which page to show. Holds the shared state (settings, current photo, history) and asks the server for results. Also contains the Methodology page.</p></div>
+        <div class="card"><h4>api.js <span class="tag">talks to server</span></h4><p>Every call to the Python server in one place: <code>analyzePhoto</code>, <code>comparePhoto</code>, <code>analyzeVideo</code>, <code>analyzeFrame</code>, <code>getHistory</code>, <code>updateScan</code>, <code>deleteScan</code>.</p></div>
+        <div class="card"><h4>PhotoView.js <span class="tag">page</span></h4><p>New inspection: the details form, the photo picker (drag &amp; drop, browse, samples) and the inspection report.</p></div>
+        <div class="card"><h4>DashboardView.js <span class="tag">2 pages</span></h4><p>Overview (numbers, SVG trend chart, priority queue) and Inspections (search, filters, status dropdown, CSV export).</p></div>
+        <div class="card"><h4>LiveView.js <span class="tag">page</span></h4><p>Opens the camera, sends small frames to the server, draws the returned boxes on a canvas on top of the video.</p></div>
+        <div class="card"><h4>VideoView.js <span class="tag">page</span></h4><p>Uploads a video and reads the server’s live answer line by line, so each frame appears while the video is checked. Has a Stop button.</p></div>
+        <div class="card"><h4>CompareView.js <span class="tag">page</span></h4><p>Shows all 4 engines’ results on one photo in a table and side by side.</p></div>
+        <div class="card"><h4>parts.js <span class="tag">shared</span></h4><p>Small reusable pieces: icons, coloured chips, KPI cards, the road-score ring, severity bars, the repair estimate card, the settings card.</p></div>
+        <div class="card"><h4>globals.css <span class="tag">style</span></h4><p>All colours and layout. Colours are set once at the top as variables (for example <code>--primary</code>), so they are easy to change.</p></div>
+        <div class="card"><h4>layout.js <span class="tag">frame</span></h4><p>The page title in the browser tab and the outer HTML frame.</p></div>
+      </div>
+      <div class="code"><div class="code-head"><span>frontend/app/api.js — sending a photo to the server</span></div>
+<pre><span class="k">export const</span> analyzePhoto = (photo, { engine, confidence, roadCheck }, details = {}) =&gt;
+  post(<span class="s">"/api/analyze"</span>, makeForm(photo, { engine, confidence, road_check: roadCheck, ...details }));</pre></div>
+      <p class="prose"><code>makeForm()</code> packs the photo and settings into a <b>FormData</b> (like a form with a file upload),
+        and <code>post()</code> sends it with <code>fetch()</code> and returns the JSON answer.</p>
+    </section>
+
+    <!-- ================= 8. AI ================= -->
+    <section id="ai">
+      <span class="kicker">Section 8</span>
+      <h2>How the AI finds potholes</h2>
+      <p class="lead"><b>YOLO</b> (“You Only Look Once”) is a deep-learning model for object detection. It looks at the whole image once and
+        returns boxes around the objects it was trained on — here, potholes — each with a confidence from 0 to 1.</p>
+
+      <h3>The three models</h3>
+      <div class="table"><table>
+        <thead><tr><th>Model</th><th>File</th><th>Size</th><th>Good at</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td><b>YOLOv8s</b></td><td><code>best.pt</code></td><td class="num">21 MB</td><td>Fast and accurate; used for video and live camera</td><td>Samdutse/pothole-yolov8</td></tr>
+          <tr><td><b>YOLOv9c</b></td><td><code>pothole_yolov9c.pt</code></td><td class="num">49 MB</td><td>Bigger model, a second opinion</td><td>EngJamesO/pothole-detector (MIT)</td></tr>
+          <tr><td><b>YOLO11n</b> (PotholeNet)</td><td><code>potholenet_yolo11n.pt</code></td><td class="num">5 MB</td><td>Water-filled potholes on rough roads</td><td>Karn815833/PotholeNet-YOLO11n (MIT)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="prose">These are pre-trained pothole models published on Hugging Face. The project also includes a training tool
+        (<code>tools.py train</code>) to train your own model on your own photos.</p>
+
+      <h3>The Ensemble engine, step by step</h3>
+      <div class="steps">
+        <div class="step"><div><h4>Two main models look</h4><p>YOLOv8s and YOLOv9c each return their boxes. We keep everything above 1% confidence and filter later, so the slider can change the result without running the AI again.</p></div></div>
+        <div class="step"><div><h4>The helper looks closer</h4><p>PotholeNet checks the whole photo and, for photos larger than 960 px, also 640 px squares (“tiles”) that overlap by 25%. Small, far-away potholes are no longer lost when the photo is shrunk.</p></div></div>
+        <div class="step"><div><h4>Weighted Box Fusion merges the answers</h4><p>Boxes that overlap more than 45% (IoU &gt; 0.45) are the same pothole. They become one box, placed at the confidence-weighted average position.</p></div></div>
+        <div class="step"><div><h4>Duplicates are removed</h4><p>If 70% of a box lies inside a stronger box, it is a duplicate and is dropped.</p></div></div>
+        <div class="step"><div><h4>The road check removes false alarms</h4><p>With High sensitivity, boxes that are more than 50% green (grass, trees) or tall and more than 40% white (lane paint) are thrown away. Colours are read in HSV (hue, saturation, brightness).</p></div></div>
+      </div>
+
+      <h3>How the merged score is calculated</h3>
+      <div class="calc">
+        <div class="calc-row"><span>Both models see the pothole: 0.80 and 0.60 → (0.80 + 0.60) ÷ 2</span><b>0.70</b></div>
+        <div class="calc-row"><span>Only one model sees it: 0.80 → 0.80 ÷ 2</span><b>0.40</b></div>
+        <div class="calc-row"><span>Only the helper sees it: 0.90 × 0.7 (we trust it a bit less alone)</span><b>0.63</b></div>
+      </div>
+      <p class="prose">So a pothole that both models agree on scores higher. This is why the Ensemble makes fewer mistakes than one model.</p>
+    </section>
+
+    <!-- ================= 9. SCORES ================= -->
+    <section id="scores">
+      <span class="kicker">Section 9</span>
+      <h2>Scores and repair estimate</h2>
+
+      <h3>1. Danger score of one pothole (0–100)</h3>
+      <div class="table"><table>
+        <thead><tr><th>Part</th><th>Idea</th><th class="num">Max points</th></tr></thead>
+        <tbody>
+          <tr><td><b>Size</b></td><td>Bigger is worse. Covering 5% of the photo or more gives full points.</td><td class="num">50</td></tr>
+          <tr><td><b>Centre</b></td><td>In the middle of the road is worse: that is where cars drive.</td><td class="num">20</td></tr>
+          <tr><td><b>Close</b></td><td>Lower in the photo means closer to the vehicle.</td><td class="num">15</td></tr>
+          <tr><td><b>Sure</b></td><td>The more confident the AI is, the more we trust the box.</td><td class="num">15</td></tr>
+        </tbody>
+      </table></div>
+      <p><span class="chip low">Low</span> 0–19 &nbsp; <span class="chip med">Medium</span> 20–39 &nbsp; <span class="chip high">High</span> 40–59 &nbsp; <span class="chip crit">Critical</span> 60–100</p>
+
+      <h3>Worked example</h3>
+      <p class="prose">A pothole covers 3% of the photo, its centre is at 45% of the width and 80% of the height, and the AI is 80% sure.</p>
+      <div class="calc">
+        <div class="calc-row"><span>Size: min(0.03 ÷ 0.05, 1) × 50</span><b>30</b></div>
+        <div class="calc-row"><span>Centre: (1 − 0.05 ÷ 0.5) × 20 = 0.9 × 20</span><b>18</b></div>
+        <div class="calc-row"><span>Close: 0.80 × 15</span><b>12</b></div>
+        <div class="calc-row"><span>Sure: 0.80 × 15</span><b>12</b></div>
+        <div class="calc-row total"><span>Danger score → level</span><b>72 → Critical</b></div>
+      </div>
+
+      <h3>2. Road Condition Index (0–100)</h3>
+      <p class="prose">The road starts at 100. Each pothole takes points away: <b>Low −3, Medium −7, High −15, Critical −35</b>. It never goes below 0.</p>
+      <div class="calc">
+        <div class="calc-row"><span>Example: 1 Critical + 2 Medium + 1 Low → 100 − 35 − 7 − 7 − 3</span><b>48</b></div>
+        <div class="calc-row total"><span>48 is between 30 and 49</span><b>Poor</b></div>
+      </div>
+      <div class="table"><table>
+        <thead><tr><th>Index</th><th>Condition</th><th>Advice shown</th></tr></thead>
+        <tbody>
+          <tr><td>85–100</td><td>Excellent</td><td>Smooth road. No repair needed.</td></tr>
+          <tr><td>70–84</td><td>Good</td><td>Small wear. Check again later.</td></tr>
+          <tr><td>50–69</td><td>Fair</td><td>Visible damage. Plan a repair.</td></tr>
+          <tr><td>30–49</td><td>Poor</td><td>A lot of damage. Repair soon.</td></tr>
+          <tr><td>0–29</td><td>Dangerous</td><td>Unsafe road. Repair right away.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>3. Repair estimate</h3>
+      <p class="prose">One photo cannot measure real distance, so we <b>assume</b> a normal road photo shows about <b>20 m²</b> of road. Depth is assumed from the level (Low 2 cm … Critical 8 cm). All numbers can be changed in <code>config.py</code>.</p>
+      <div class="calc">
+        <div class="calc-row"><span>Area = 3% × 20 m²</span><b>0.6 m²</b></div>
+        <div class="calc-row"><span>Asphalt = 0.6 m² × 0.08 m deep × 2,300 kg/m³</span><b>110.4 kg</b></div>
+        <div class="calc-row"><span>Cost = ₹500 fixed + 0.6 m² × ₹1,800 (Critical rate)</span><b>₹1,580</b></div>
+        <div class="calc-row"><span>Crew time = 0.5 h + 0.6 m² × 1 h</span><b>1.1 h</b></div>
+        <div class="calc-row total"><span>Repair within</span><b>24 hours</b></div>
+      </div>
+      <div class="tip"><b>If asked “is the cost exact?”</b> — No. It is a planning estimate to compare roads and plan a budget. The rates and the 20 m² assumption are settings that a city would replace with its own numbers.</div>
+    </section>
+
+    <!-- ================= 10. DATA ================= -->
+    <section id="data">
+      <span class="kicker">Section 10</span>
+      <h2>API and database</h2>
+      <p class="lead">An <b>API</b> is a list of addresses the website can call. Ours are all under <code>/api</code>.</p>
+      <div class="table"><table>
+        <thead><tr><th>Method</th><th>Address</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/api/info</code></td><td>Engines, sensitivity presets, repair rates, version number</td></tr>
+          <tr><td>GET</td><td><code>/api/samples</code></td><td>List of sample photos</td></tr>
+          <tr><td>POST</td><td><code>/api/analyze</code></td><td>Check one photo and save it as an inspection. With <code>live=true</code>: a camera frame, fast, not saved, returns only box positions</td></tr>
+          <tr><td>POST</td><td><code>/api/compare</code></td><td>Check one photo with all 4 engines</td></tr>
+          <tr><td>POST</td><td><code>/api/video</code></td><td>Check a video; answers live, one line of JSON per checked frame (streaming)</td></tr>
+          <tr><td>GET</td><td><code>/api/history</code></td><td>All inspections + totals</td></tr>
+          <tr><td>PATCH</td><td><code>/api/history/{id}</code></td><td>Change status (Open / Scheduled / Repaired) or details</td></tr>
+          <tr><td>DELETE</td><td><code>/api/history/{id}</code></td><td>Delete one inspection (<code>/api/history</code> deletes all)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>The database table “scans”</h3>
+      <div class="table"><table>
+        <thead><tr><th>Columns</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code>, <code>key</code></td><td>Inspection number (shown as INS-0001) and the photo’s fingerprint</td></tr>
+          <tr><td><code>kind</code>, <code>name</code>, <code>engine</code>, <code>created</code></td><td>photo / video / camera, file name, AI engine, date and time</td></tr>
+          <tr><td><code>road_name</code>, <code>ward</code>, <code>inspector</code>, <code>notes</code></td><td>Details typed in Step 1</td></tr>
+          <tr><td><code>count</code>, <code>worst</code>, <code>road_score</code></td><td>Number of potholes, most severe level, Road Condition Index</td></tr>
+          <tr><td><code>low</code>, <code>medium</code>, <code>high</code>, <code>critical</code></td><td>Potholes per level</td></tr>
+          <tr><td><code>repair_cost</code>, <code>status</code></td><td>Estimated cost in ₹ and Open / Scheduled / Repaired</td></tr>
+          <tr><td><code>lat</code>, <code>lon</code>, <code>thumbnail</code></td><td>GPS location (if any) and a small marked picture</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>GPS location</h3>
+      <p class="prose">Phone cameras hide extra data inside a photo, called <b>EXIF</b>. When location is on, it includes the GPS position as degrees,
+        minutes and seconds. <code>read_gps()</code> in <code>server.py</code> reads it with the Pillow library and turns it into a normal
+        latitude/longitude, which the report links to Google Maps.</p>
+    </section>
+
+    <!-- ================= 11. SPEED ================= -->
+    <section id="speed">
+      <span class="kicker">Section 11</span>
+      <h2>Speed and keeping the laptop cool</h2>
+      <div class="grid2">
+        <div class="card"><h4>Half the CPU</h4><p>The AI may use only half the CPU cores (max 4): <code>CPU_THREADS</code> in config.py. The laptop stays usable and cooler.</p></div>
+        <div class="card"><h4>One job at a time</h4><p>A lock (<code>ai_lock</code>) lets only one AI job run at once, so many requests cannot overload the CPU.</p></div>
+        <div class="card"><h4>Results remembered</h4><p>The same photo + engine is never checked twice. Moving the confidence slider only re-filters the saved boxes: instant.</p></div>
+        <div class="card"><h4>Smart video</h4><p>Frames are shrunk to 640 px, only every Nth frame is checked, and at most 5 checks per second.</p></div>
+        <div class="card"><h4>Smooth live camera</h4><p>The video plays directly at full speed. Only a small 512 px copy goes to the AI, and only box positions come back (no picture), drawn on a layer on top. Up to 6 AI updates per second, ~60 ms each.</p></div>
+        <div class="card"><h4>No extra server</h4><p>The website is built once into plain files that Python serves. No Node.js server keeps running in the background.</p></div>
+      </div>
+      <h3>Measured speed (MacBook Air, CPU only)</h3>
+      <div class="table"><table>
+        <thead><tr><th>Task</th><th class="num">Time</th></tr></thead>
+        <tbody>
+          <tr><td>YOLOv8s on one photo</td><td class="num">~0.07–0.1 s</td></tr>
+          <tr><td>PotholeNet on one photo</td><td class="num">~0.04–0.09 s</td></tr>
+          <tr><td>YOLOv9c on one photo</td><td class="num">~0.2–0.7 s</td></tr>
+          <tr><td>Ensemble on one photo</td><td class="num">~0.3–0.7 s</td></tr>
+          <tr><td>Live camera, one AI update</td><td class="num">~0.06 s</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ================= 12. ACCURACY ================= -->
+    <section id="accuracy">
+      <span class="kicker">Section 12</span>
+      <h2>Accuracy</h2>
+      <p class="lead">Measured on a test set of 100 labelled road photos with 269 potholes, at 25% confidence.</p>
+      <div class="table"><table>
+        <thead><tr><th>Engine</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th></tr></thead>
+        <tbody>
+          <tr><td>YOLOv8s</td><td class="num">0.84</td><td class="num">0.74</td><td class="num">0.78</td></tr>
+          <tr><td>YOLOv9c</td><td class="num">0.79</td><td class="num">0.73</td><td class="num">0.76</td></tr>
+          <tr><td>PotholeNet (YOLO11n)</td><td class="num">0.53</td><td class="num">0.48</td><td class="num">0.50</td></tr>
+          <tr><td><b>Ensemble</b></td><td class="num">0.72*</td><td class="num"><b>0.78</b></td><td class="num">0.75</td></tr>
+          <tr><td><b>Ensemble, High sensitivity</b></td><td class="num">0.62*</td><td class="num"><b>0.80</b></td><td class="num">–</td></tr>
+        </tbody>
+      </table></div>
+      <p class="prose">*Many of the Ensemble’s “extra” boxes are real potholes that the test set left unlabelled, so its true precision is higher.
+        The Ensemble finds the <b>most</b> potholes (highest recall), and reported <b>0 potholes on a clean road</b>. For a road department,
+        missing a pothole is worse than checking an extra one, so we chose recall.</p>
+    </section>
+
+    <!-- ================= 13. WORDS ================= -->
+    <section id="words">
+      <span class="kicker">Section 13</span>
+      <h2>Key words explained</h2>
+      <div class="table"><table>
+        <tbody>
+          <tr><td><b>Object detection</b></td><td>Finding WHERE objects are in an image (boxes), not just WHAT the image shows.</td></tr>
+          <tr><td><b>YOLO</b></td><td>“You Only Look Once”: a fast detection model that finds all objects in one pass over the image.</td></tr>
+          <tr><td><b>Bounding box</b></td><td>The rectangle around a pothole: 4 numbers x1, y1 (top-left) and x2, y2 (bottom-right).</td></tr>
+          <tr><td><b>Confidence</b></td><td>How sure the model is that a box is a pothole, 0 to 1.</td></tr>
+          <tr><td><b>IoU</b></td><td>Intersection over Union: overlap area ÷ total area of two boxes. 0 = apart, 1 = the same box.</td></tr>
+          <tr><td><b>NMS</b></td><td>Non-Maximum Suppression: inside ONE model, keeps the best box and drops overlapping weaker ones.</td></tr>
+          <tr><td><b>Ensemble</b></td><td>Using several models together and combining their answers.</td></tr>
+          <tr><td><b>WBF</b></td><td>Weighted Box Fusion: merges boxes from several models into one averaged box with a combined score.</td></tr>
+          <tr><td><b>Tiling</b></td><td>Cutting a large photo into smaller overlapping squares so small objects keep their detail.</td></tr>
+          <tr><td><b>Precision</b></td><td>Of all boxes the AI drew, how many are real potholes.</td></tr>
+          <tr><td><b>Recall</b></td><td>Of all real potholes, how many the AI found.</td></tr>
+          <tr><td><b>F1 score</b></td><td>One number that balances precision and recall (their harmonic mean).</td></tr>
+          <tr><td><b>mAP50</b></td><td>Mean Average Precision at IoU 0.5: the standard overall score for detection models.</td></tr>
+          <tr><td><b>Epoch</b></td><td>One full pass over all training images while training a model.</td></tr>
+          <tr><td><b>HSV</b></td><td>Hue (colour), Saturation (strength), Value (brightness): an easier way to test “is this green / white?”.</td></tr>
+          <tr><td><b>API</b></td><td>Addresses a program can call to ask another program to do something.</td></tr>
+          <tr><td><b>FastAPI</b></td><td>A Python library for building APIs quickly.</td></tr>
+          <tr><td><b>Next.js / React</b></td><td>JavaScript tools for building websites from components that redraw themselves when data changes.</td></tr>
+          <tr><td><b>SQLite</b></td><td>A small database stored in one file, built into Python.</td></tr>
+          <tr><td><b>JSON</b></td><td>A simple text format for sending data, like <code>{"count": 7}</code>.</td></tr>
+          <tr><td><b>Base64</b></td><td>A way to send a picture as text inside JSON.</td></tr>
+          <tr><td><b>Streaming</b></td><td>Sending an answer in pieces as it is ready (used for live video results).</td></tr>
+          <tr><td><b>EXIF</b></td><td>Hidden data inside photos: camera, date, and GPS location.</td></tr>
+          <tr><td><b>SHA-1 hash</b></td><td>A short “fingerprint” of a file; the same photo always gives the same fingerprint.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- ================= 14. VIVA ================= -->
+    <section id="viva">
+      <span class="kicker">Section 14</span>
+      <h2>Viva questions &amp; answers</h2>
+      <p class="lead">Short, honest answers you can say out loud. Search by any word, or open all.</p>
+      <div class="qa-tools">
+        <input id="qa-search" type="search" placeholder="Search questions, e.g. YOLO, recall, cost, camera…" aria-label="Search questions">
+        <button class="btn" id="qa-toggle" type="button">Open all</button>
+      </div>
+      <div class="qa-count" id="qa-count"></div>
+      <div class="empty-search" id="qa-empty">No question matches that word. Try a shorter word.</div>
+
+      <div id="qa">
+        <div class="qa-group">About the project</div>
+        <details class="qa"><summary>What is your project?</summary><div class="ans"><p>An AI road-inspection system. It finds potholes in photos, videos and a live camera with three YOLO models, grades each pothole Low to Critical, gives the road a 0–100 condition score, estimates the repair cost and deadline, and tracks every inspection until it is repaired.</p></div></details>
+        <details class="qa"><summary>Who will use it?</summary><div class="ans"><p>A city or municipal road department: field inspectors create inspections, and engineers or managers use the Overview and Inspections pages to decide which road to repair first and how much budget is needed.</p></div></details>
+        <details class="qa"><summary>What problem does it solve?</summary><div class="ans"><p>Manual inspection is slow, not consistent between people, and gives no clear priority. Our system gives a fast, repeatable score for every road and a ranked priority list with a cost estimate.</p></div></details>
+        <details class="qa"><summary>What are the main features?</summary><div class="ans"><p>Photo inspection with a report, video survey, real-time live camera, a dashboard with a priority queue, an inspection list with repair status (Open → Scheduled → Repaired), repair cost estimates, GPS location from photos, PDF printing, CSV export and comparison of 4 AI engines.</p></div></details>
+        <details class="qa"><summary>Which technologies did you use?</summary><div class="ans"><p>Python, YOLO via the Ultralytics library, PyTorch, OpenCV for images and video, FastAPI for the server, SQLite for the database, and Next.js with React for the website.</p></div></details>
+
+        <div class="qa-group">The AI</div>
+        <details class="qa"><summary>What is YOLO and why did you choose it?</summary><div class="ans"><p>YOLO (“You Only Look Once”) is a deep-learning object detector that finds all objects in one pass over the image. We chose it because it is fast enough for video and live camera on a normal laptop, accurate, and easy to use through the Ultralytics library.</p></div></details>
+        <details class="qa"><summary>Why not Faster R-CNN or another model?</summary><div class="ans"><p>Two-stage models like Faster R-CNN can be accurate but are slower. We need real-time speed for the live camera on a laptop CPU, so a one-stage model like YOLO is the better fit.</p></div></details>
+        <details class="qa"><summary>Why three models instead of one?</summary><div class="ans"><p>Each model makes different mistakes. When two models agree, we are more confident; the third model (PotholeNet) is good at water-filled potholes and adds ones the others miss. Together the Ensemble has the highest recall (78–80%).</p></div></details>
+        <details class="qa"><summary>Did you train the models yourself?</summary><div class="ans"><p>The three detection models are pre-trained pothole models published on Hugging Face (YOLOv8s by Samdutse, YOLOv9c by EngJamesO, PotholeNet YOLO11n by Karn815833). Our work is how we combine them (ensemble, tiling, filtering), the scoring, the repair planning and the full system. The project also contains a training tool (<code>tools.py train</code>) and dataset cleaning tools to train our own model.</p></div></details>
+        <details class="qa"><summary>What is Weighted Box Fusion?</summary><div class="ans"><p>A way to merge boxes from several models. Boxes that overlap more than 45% are treated as the same pothole and replaced by one box at their confidence-weighted average position. The score is the sum of the models’ scores divided by the number of models, so agreement gives a higher score.</p></div></details>
+        <details class="qa"><summary>What is IoU?</summary><div class="ans"><p>Intersection over Union: the overlapping area of two boxes divided by the total area they cover. 0 means no overlap, 1 means identical boxes. We use 0.45 to decide if two boxes are the same pothole.</p></div></details>
+        <details class="qa"><summary>What is the confidence threshold?</summary><div class="ans"><p>The minimum confidence a box needs to be shown. High sensitivity uses 15% (finds faint, far potholes), Balanced uses 25% (only surer ones). The user can change it with a slider.</p></div></details>
+        <details class="qa"><summary>Why do you cut big photos into tiles?</summary><div class="ans"><p>YOLO shrinks every image to 640 px. On a big photo, a small far-away pothole becomes just a few pixels and is missed. Checking 640 px squares at full resolution keeps those details. We only keep small boxes from tiles and ignore boxes cut by a tile edge.</p></div></details>
+        <details class="qa"><summary>How do you reduce false detections?</summary><div class="ans"><p>Four ways: the confidence threshold, agreement between models (Ensemble), removing duplicate boxes, and a colour check that drops boxes that are mostly green (grass) or tall and white (lane markings).</p></div></details>
+        <details class="qa"><summary>What are precision and recall?</summary><div class="ans"><p>Precision: of the boxes we drew, how many are real potholes. Recall: of all real potholes, how many we found. F1 combines both into one number.</p></div></details>
+        <details class="qa"><summary>What accuracy did you get?</summary><div class="ans"><p>On 100 labelled photos with 269 potholes, the Ensemble found 78% of potholes (80% with High sensitivity) and gave no false alarm on a clean road. YOLOv8s alone has the best precision (0.84). Ensemble precision shows 0.72, but many of its extra boxes are real potholes that were not labelled in the test set.</p></div></details>
+        <details class="qa"><summary>Why do you care more about recall?</summary><div class="ans"><p>For road safety, missing a dangerous pothole is worse than checking one extra box. An inspector can quickly ignore a wrong box, but a missed pothole may cause an accident.</p></div></details>
+        <details class="qa"><summary>What is mAP50?</summary><div class="ans"><p>Mean Average Precision at IoU 0.5: the standard score for detection models. It summarises precision at all confidence levels when a correct box must overlap the real pothole by at least 50%. The training tool prints it.</p></div></details>
+
+        <div class="qa-group">Scores and repair</div>
+        <details class="qa"><summary>How do you decide how dangerous a pothole is?</summary><div class="ans"><p>A danger score from 0 to 100: size in the photo (up to 50), how close it is to the road centre (20), how close to the camera (15), and AI confidence (15). 0–19 Low, 20–39 Medium, 40–59 High, 60+ Critical.</p></div></details>
+        <details class="qa"><summary>Why those weights (50/20/15/15)?</summary><div class="ans"><p>Size matters most for damage, so it has half the points. Position matters because cars drive in the centre and near potholes are hit first. Confidence makes sure uncertain boxes count less. The weights are simple and explainable and are kept in code so they can be tuned with real repair data later.</p></div></details>
+        <details class="qa"><summary>What is the Road Condition Index?</summary><div class="ans"><p>A score from 0 to 100 for the whole road. It starts at 100 and loses 3, 7, 15 or 35 points for each Low, Medium, High or Critical pothole. 85+ is Excellent, below 30 is Dangerous.</p></div></details>
+        <details class="qa"><summary>How do you estimate the repair cost?</summary><div class="ans"><p>We assume a road photo shows about 20 m² of road, so a pothole covering 3% of the photo is about 0.6 m². Depth is assumed from the level (2–8 cm). That gives asphalt in kg, crew hours and cost: ₹500 fixed plus a rate per m² (₹600–1,800 by level). It is a planning estimate; all values are in <code>config.py</code>.</p></div></details>
+        <details class="qa"><summary>Can it measure the real depth or size?</summary><div class="ans"><p>Not exactly. One normal photo has no depth information. We estimate size from the photo and assume depth by severity. Exact measurement would need a depth camera, stereo cameras or LiDAR, which is future work.</p></div></details>
+        <details class="qa"><summary>How is the repair deadline decided?</summary><div class="ans"><p>From the worst pothole on the road: Critical within 24 hours, High within 7 days, Medium within 30 days, Low at the next routine check.</p></div></details>
+
+        <div class="qa-group">The system</div>
+        <details class="qa"><summary>Explain the architecture.</summary><div class="ans"><p>A Next.js website sends the photo over HTTP to a Python FastAPI server. The server runs the detector (3 YOLO models), builds the report (scores, repair estimate, drawing), saves the inspection in SQLite and sends the result back as JSON. The same server also serves the website, so everything runs on one address.</p></div></details>
+        <details class="qa"><summary>Why FastAPI?</summary><div class="ans"><p>The AI runs in Python, so the server is in Python too. FastAPI is quick to write, fast, checks input types automatically, handles file uploads, and supports streaming answers for the live video results.</p></div></details>
+        <details class="qa"><summary>Why Next.js?</summary><div class="ans"><p>It lets us build the website from React components (one per page and small shared parts) and export it as plain files, which our Python server can serve. No separate Node.js server has to keep running.</p></div></details>
+        <details class="qa"><summary>How does the website send a photo to the server?</summary><div class="ans"><p>As <b>FormData</b> (like a form with a file upload) using <code>fetch()</code> to <code>POST /api/analyze</code>. The answer is JSON, and the marked photo comes back as a base64 text image.</p></div></details>
+        <details class="qa"><summary>Which database do you use, and why?</summary><div class="ans"><p>SQLite. It is a full SQL database stored in one file and built into Python, so nothing extra has to be installed or run. One table, <code>scans</code>, stores each inspection.</p></div></details>
+        <details class="qa"><summary>How do you stop duplicate inspections?</summary><div class="ans"><p>Each photo gets a SHA-1 fingerprint of its bytes, stored as a unique key. Checking the same photo again (for example after moving the slider) updates the same row with an “upsert” and keeps its repair status.</p></div></details>
+        <details class="qa"><summary>How does GPS location work?</summary><div class="ans"><p>Phone photos with location turned on store GPS inside the EXIF data. The server reads it with Pillow, converts degrees/minutes/seconds to decimal latitude and longitude, saves it, and the report links to Google Maps.</p></div></details>
+        <details class="qa"><summary>How does the live camera work, and why is it smooth?</summary><div class="ans"><p>The browser shows the camera video directly at full speed. In the background it sends a small 512 px copy of the current frame to the server, which runs the fastest model (YOLOv8s, about 60 ms) and returns only box positions. The website draws those boxes on a transparent canvas over the video. The next frame is sent when the answer arrives, up to 6 per second.</p></div></details>
+        <details class="qa"><summary>How does the video survey work?</summary><div class="ans"><p>The video is uploaded, the server opens it with OpenCV and checks every Nth frame (shrunk to 640 px). After each frame it sends one line of JSON straight away (streaming), so results appear live. At the end it saves a summary with the worst frame and the average road score.</p></div></details>
+        <details class="qa"><summary>How do you keep the laptop from overheating?</summary><div class="ans"><p>The AI uses only half the CPU cores, only one AI job runs at a time, results are remembered, video frames are shrunk and limited to 5 checks per second, and the live camera sends small frames and gets back only box positions.</p></div></details>
+        <details class="qa"><summary>What happens if the server stops?</summary><div class="ans"><p>The sidebar shows “AI server offline” and a red banner explains how to start it (<code>./start.sh</code>). If an older version is running, the website notices from the version number and asks for a restart.</p></div></details>
+        <details class="qa"><summary>Is it secure?</summary><div class="ans"><p>It runs locally on one computer. Sample file names are cleaned so nobody can read other files (“../” tricks are blocked), status values are checked, and SQL uses parameters, not glued text. For real city use we would add logins and user roles (future work).</p></div></details>
+        <details class="qa"><summary>Does it need the internet?</summary><div class="ans"><p>No. The models are stored in the <code>models</code> folder and the server runs offline. Only the Google Maps link needs the internet.</p></div></details>
+
+        <div class="qa-group">Using and changing it</div>
+        <details class="qa"><summary>How do you run the project?</summary><div class="ans"><p>Run <code>./start.sh</code> in the project folder and open http://localhost:8000. It installs what is missing, builds the website and starts the server.</p></div></details>
+        <details class="qa"><summary>How do you change a setting, like the repair cost?</summary><div class="ans"><p>Edit <code>backend/config.py</code>. All numbers are there with comments, then restart with <code>./start.sh</code>.</p></div></details>
+        <details class="qa"><summary>How would you add a new model?</summary><div class="ans"><p>Put the <code>.pt</code> file in <code>models/</code>, add it to <code>MODEL_FILES</code> in <code>config.py</code>, and add an engine to <code>ENGINES</code>. It then appears in the engine menu and in Model comparison.</p></div></details>
+        <details class="qa"><summary>How would you train your own model?</summary><div class="ans"><p>Collect road photos, label potholes in YOLO format, clean the labels with <code>tools.py dataset-clean</code>, then run <code>tools.py train data.yaml</code>. It uses flips, mosaic and brightness changes (augmentation) and prints precision, recall and mAP50.</p></div></details>
+        <details class="qa"><summary>What is the YOLO label format?</summary><div class="ans"><p>One text file per image, one line per pothole: <code>class x_center y_center width height</code>, all as fractions of the image size (0 to 1).</p></div></details>
+
+        <div class="qa-group">Limits and future</div>
+        <details class="qa"><summary>What are the limitations?</summary><div class="ans"><p>Size and cost are estimates (no real depth); accuracy drops at night, in heavy rain, or with motion blur; shadows and patches can be confused with potholes; and it runs on one computer without user accounts.</p></div></details>
+        <details class="qa"><summary>What would you add next?</summary><div class="ans"><p>A map of all potholes, a mobile app for inspectors, logins and roles, training on local Indian roads, depth measurement with stereo cameras or LiDAR, a vehicle-mounted camera that inspects while driving, and automatic complaint reports to the municipality.</p></div></details>
+        <details class="qa"><summary>Why is this useful for society?</summary><div class="ans"><p>Potholes damage vehicles and cause accidents, especially for two-wheelers. Finding them early, ranking them and planning the budget helps cities repair the most dangerous roads first.</p></div></details>
+        <details class="qa"><summary>What was the hardest part?</summary><div class="ans"><p>Combining three models without double-counting potholes (solved with Weighted Box Fusion and duplicate removal), finding small far-away potholes (solved with tiling), and making the live camera smooth on a laptop (solved by drawing boxes over the live video instead of waiting for processed images).</p></div></details>
+      </div>
+    </section>
+
+    <!-- ================= 15. LIMITS ================= -->
+    <section id="limits">
+      <span class="kicker">Section 15</span>
+      <h2>Limits and future work</h2>
+      <div class="grid2">
+        <div class="card"><h4>Limits today</h4><p>Repair size and cost are estimates. Night, heavy rain and blur reduce accuracy. Shadows and road patches can look like potholes. Single computer, no user accounts.</p></div>
+        <div class="card"><h4>Next steps</h4><p>City map of potholes, inspector mobile app, logins and roles, training on local roads, stereo / LiDAR depth, a dash-cam mode that inspects while driving, and automatic reports to the road department.</p></div>
+      </div>
+      <div class="say">
+        <div class="label">A good closing line</div>
+        <p>“Our system turns a simple road photo into a repair decision: where the potholes are, how dangerous they are, which road to fix first and roughly what it will cost — in under a second, on a normal laptop.”</p>
+      </div>
+      <div class="foot">Pothole Detection System · project guide · Python · YOLO · OpenCV · FastAPI · SQLite · Next.js</div>
+    </section>
+  </main>
+</div>
+
+<script>
+// Copy buttons for commands
+document.querySelectorAll(".copy").forEach((button) => {
+  button.addEventListener("click", () => {
+    const text = button.dataset.copy;
+    navigator.clipboard.writeText(text).then(() => {
+      button.textContent = "Copied";
+      setTimeout(() => (button.textContent = "Copy"), 1500);
+    }).catch(() => {
+      const range = document.createRange();
+      range.selectNodeContents(button.closest(".code").querySelector("pre"));
+      const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+    });
+  });
+});
+
+// Viva search + open all
+const items = [...document.querySelectorAll("details.qa")];
+const groups = [...document.querySelectorAll(".qa-group")];
+const search = document.getElementById("qa-search");
+const count = document.getElementById("qa-count");
+const empty = document.getElementById("qa-empty");
+const toggle = document.getElementById("qa-toggle");
+function filter() {
+  const words = search.value.trim().toLowerCase();
+  let shown = 0;
+  items.forEach((item) => {
+    const match = !words || item.textContent.toLowerCase().includes(words);
+    item.hidden = !match;
+    if (match) shown++;
+    if (words && match) item.open = true;
+  });
+  groups.forEach((group) => {          // hide a group title when none of its questions match
+    let next = group.nextElementSibling, any = false;
+    while (next && !next.classList.contains("qa-group")) { if (!next.hidden) any = true; next = next.nextElementSibling; }
+    group.hidden = !any;
+  });
+  count.textContent = words ? `${shown} of ${items.length} questions match` : `${items.length} questions`;
+  empty.style.display = shown ? "none" : "block";
+}
+search.addEventListener("input", filter);
+toggle.addEventListener("click", () => {
+  const open = toggle.textContent === "Open all";
+  items.forEach((item) => { if (!item.hidden) item.open = open; });
+  toggle.textContent = open ? "Close all" : "Open all";
+});
+filter();
+
+// Highlight the section you are reading in the contents menu
+const links = [...document.querySelectorAll("#toc a")];
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + entry.target.id));
+  });
+}, { rootMargin: "-20% 0px -70% 0px" });
+document.querySelectorAll("main section").forEach((section) => observer.observe(section));
+</script>

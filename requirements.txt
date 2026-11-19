@@ -1,0 +1,7 @@
+# Python libraries for the AI + API. Install them with:  pip install -r requirements.txt
+ultralytics>=8.3          # YOLO AI models (also installs PyTorch)
+opencv-python             # read, draw and save images/videos
+numpy                     # fast maths on arrays of numbers
+fastapi                   # the API that the website talks to
+uvicorn[standard]         # runs the API server
+python-multipart          # lets the API receive uploaded files
